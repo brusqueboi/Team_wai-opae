@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System;
+using System.Collections.Generic;
 
 public class GameModel : MonoBehaviour
 {
@@ -11,7 +12,16 @@ public class GameModel : MonoBehaviour
 	public const int MinLevel = 1;
 	public const int MaxLevel = Int32.MaxValue;
 
-	private int level = 1;
+	protected static GameModel model = new GameModel();
+	public static GameModel Model
+	{
+		get
+		{
+			return model;
+		}
+	}
+
+	protected int level = 1;
 	public int Level
 	{
 		get
@@ -54,13 +64,14 @@ public class GameModel : MonoBehaviour
 		}
 	}
 
-	private static readonly GameModel MODEL_SINGLETON = new GameModel();
-
-	public static GameModel getInstance()
+	protected List<string> oleloNoeau = new List<string>();
+	public string[] OleloNoeau
 	{
-		return MODEL_SINGLETON;
+		get
+		{
+			return oleloNoeau.ToArray();
+		}
 	}
-
 
 
 	// Use this for initialization
