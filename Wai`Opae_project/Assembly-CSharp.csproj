@@ -47,7 +47,6 @@
   <ItemGroup>
      <Compile Include="Assets\GameModel.cs" />
      <Compile Include="Assets\ProjectileController.cs" />
-     <Compile Include="Assets\models\fbx\GameModel.cs" />
  <Reference Include="UnityEngine.UI">
  <HintPath>C:/Program Files/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>
