@@ -86,8 +86,9 @@ public class ProjectileController : MonoBehaviour
             }
 
             // Reset and restart for demo.
-            yield return new WaitForSeconds(2.0f);
+            yield return new WaitForSeconds(0.2f);
             Projectile.position = originalPos;
+            yield return new WaitForSeconds(0.5f);
             shot = 1;
         }
 	}
