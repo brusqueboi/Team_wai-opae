@@ -45,8 +45,14 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\Caustic Effct &amp; Underwater Fog\Shaders\CausticsProjector.cs" />
+     <Compile Include="Assets\Caustic Effct &amp; Underwater Fog\Shaders\StandardCausticsShaderGUI.cs" />
+     <Compile Include="Assets\Caustic Effct &amp; Underwater Fog\UnderwaterFog.cs" />
      <Compile Include="Assets\GameModel.cs" />
      <Compile Include="Assets\ProjectileController.cs" />
+     <None Include="Assets\Caustic Effct &amp; Underwater Fog\Shaders\UnityStandardCausticsCore.cginc" />
+     <None Include="Assets\Caustic Effct &amp; Underwater Fog\Shaders\StandardCaustics.shader" />
+     <None Include="Assets\Caustic Effct &amp; Underwater Fog\Shaders\UnityStandardCausticsInput.cginc" />
  <Reference Include="UnityEngine.UI">
  <HintPath>C:/Program Files/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>
