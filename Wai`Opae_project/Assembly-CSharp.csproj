@@ -48,6 +48,7 @@
      <Compile Include="Assets\Caustic Effct &amp; Underwater Fog\Shaders\CausticsProjector.cs" />
      <Compile Include="Assets\Caustic Effct &amp; Underwater Fog\Shaders\StandardCausticsShaderGUI.cs" />
      <Compile Include="Assets\Caustic Effct &amp; Underwater Fog\UnderwaterFog.cs" />
+     <Compile Include="Assets\CursorMovement.cs" />
      <Compile Include="Assets\GameModel.cs" />
      <Compile Include="Assets\ProjectileController.cs" />
      <None Include="Assets\Caustic Effct &amp; Underwater Fog\Shaders\UnityStandardCausticsCore.cginc" />
