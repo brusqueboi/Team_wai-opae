@@ -3,93 +3,72 @@ using System.Collections;
 
 public class ProjectileController : MonoBehaviour
 {
-	public Transform Target;
-	public float firingAngle = 45.0f;
-	public float gravity = 9.8f;
-    public string buttonName;
-    private int shot = 1;
+	public Animation despawnAnimation;
 
-	protected Transform Projectile;
-	private Vector3 originalPos; // Debug. 
+	public float maxVelocity = 10.0f;
+	public float acceleration = 5.0f;
+	public float velocity = 0.0f;
+	public float despawnDelay = 2.0f;
+	public Vector3 rotationOffset = Vector3.zero;
+	public float despawnDistance = 1000.0f; // 1 Km
 
-	void Awake()
-	{
-		Projectile = gameObject.transform;
-		originalPos = gameObject.transform.position;
-	}
+	private Transform target;
+	private Quaternion forwardRotation;
+	private Quaternion offsetRotation;
+	private Vector3 launchPosition;
 
 	void Start()
 	{
-
+		gameObject.transform.Rotate(rotationOffset);
     }
 
     void Update()
     {
-        if(shot == 1)
-        {
-            if (Input.GetButtonDown(buttonName) && buttonName.Equals("AButton"))
-            {
-                shot = 0;
-                FireProjectile();
-                Projectile.position = originalPos;
-            }
+		if(velocity > 0.0f)
+		{
+			if(velocity < maxVelocity)
+			{
+				velocity = Mathf.Clamp(velocity + (acceleration * Time.deltaTime), 0.0f, maxVelocity);
+			}
+			gameObject.transform.rotation = forwardRotation;
+			gameObject.transform.position += gameObject.transform.forward * velocity * Time.deltaTime;
+			gameObject.transform.rotation = offsetRotation;
+			if(Vector3.Distance(launchPosition, gameObject.transform.position) > despawnDistance)
+			{
+				velocity = 0.0f;
+				Destroy(gameObject);
+			}
+		}
+	}
 
-        }
+	void OnCollisionEnter(Collision collision)
+	{
+		velocity = 0.0f;
+		StartCoroutine(ProjectileDespawn());
+	}
+
+	public void FireProjectile(Transform target)
+	{
+		this.target = target;
+		launchPosition = gameObject.transform.position;
+		gameObject.transform.LookAt(target.position);
+		forwardRotation = gameObject.transform.rotation; // Save forward rotation.
+		gameObject.transform.Rotate(rotationOffset);
+		offsetRotation = gameObject.transform.rotation; // Save offset rotation.
+		velocity = acceleration * Time.deltaTime;
     }
 
-	void FireProjectile()
+	private IEnumerator ProjectileDespawn()
 	{
-		if (Target != null)
+		yield return new WaitForSeconds(despawnDelay);
+		if(despawnAnimation != null)
 		{
-			StartCoroutine(SimulateProjectile());
+			despawnAnimation.Play();
+			do
+			{
+				yield return null;
+			} while (despawnAnimation.isPlaying);
 		}
-		else
-		{
-			Debug.Log("FireProjectile() failed: unspecified target");
-		}
-	}
-
-
-	IEnumerator SimulateProjectile()
-	{
-        if (true)
-        {
-            //Sources:
-            //http://en.wikipedia.org/wiki/Trajectory_of_a_projectile
-            //http://forum.unity3d.com/threads/throw-an-object-along-a-parabola.158855/#post-1087673
-
-            // Calculate distance to target
-            float target_Distance = Vector3.Distance(Projectile.position, Target.position);
-
-            // Calculate the velocity needed to throw the object to the target at specified angle.
-            float projectile_Velocity = target_Distance / (Mathf.Sin(2 * firingAngle * Mathf.Deg2Rad) / gravity);
-
-            // Extract the X  Y componenent of the velocity
-            float Vx = Mathf.Sqrt(projectile_Velocity) * Mathf.Cos(firingAngle * Mathf.Deg2Rad);
-            float Vy = Mathf.Sqrt(projectile_Velocity) * Mathf.Sin(firingAngle * Mathf.Deg2Rad);
-
-            // Calculate flight time.
-            float flightDuration = target_Distance / Vx;
-
-            // Rotate projectile to face the target.
-            Projectile.rotation = Quaternion.LookRotation(Target.position - Projectile.position);
-
-            float elapse_time = 0;
-
-            while (elapse_time < flightDuration)
-            {
-                Projectile.Translate(0, (Vy - (gravity * elapse_time)) * Time.deltaTime, Vx * Time.deltaTime);
-
-                elapse_time += Time.deltaTime;
-
-                yield return null;
-            }
-
-            // Reset and restart for demo.
-            yield return new WaitForSeconds(0.2f);
-            Projectile.position = originalPos;
-            yield return new WaitForSeconds(0.5f);
-            shot = 1;
-        }
-	}
+		Destroy(gameObject);
+	} 
 }

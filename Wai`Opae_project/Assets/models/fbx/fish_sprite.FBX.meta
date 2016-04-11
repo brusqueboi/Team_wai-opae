@@ -8,18 +8,23 @@ ModelImporter:
     100000: //RootNode
     100002: Fish_Sprite_Back
     100004: Fish_Sprite_Front
+    100006: Fish_Sprite_Center
     400000: //RootNode
     400002: Fish_Sprite_Back
     400004: Fish_Sprite_Front
+    400006: Fish_Sprite_Center
     2300000: //RootNode
     2300002: Fish_Sprite_Back
     2300004: Fish_Sprite_Front
+    2300006: Fish_Sprite_Center
     3300000: //RootNode
     3300002: Fish_Sprite_Back
     3300004: Fish_Sprite_Front
+    3300006: Fish_Sprite_Center
     4300000: Fish_Sprite
     4300002: Fish_Sprite_Front
     4300004: Fish_Sprite_Back
+    4300006: Fish_Sprite_Center
     9500000: //RootNode
   materials:
     importMaterials: 1

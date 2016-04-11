@@ -2,12 +2,30 @@
 using System.Collections;
 using System;
 using System.Collections.Generic;
+using Assets;
+using UnityEngine.UI;
 
 public class GameModel : MonoBehaviour
 {
 
+	public delegate void PreyConsumedEventHandler(object sender, PreyConsumedEventArgs args);
+
+	public class PreyConsumedEventArgs : EventArgs
+	{
+		public PreyController PreyObject { get; private set; }
+
+		public RoiController RoiObject { get; private set; }
+
+		public PreyConsumedEventArgs(PreyController prey, RoiController roi)
+		{
+			PreyObject = Utils.RequireNonNull(prey);
+			RoiObject = Utils.RequireNonNull(roi);
+		}
+	}
+
 	public event EventHandler GameSuspendedChanged;
 	public event EventHandler LevelChanged;
+	public event PreyConsumedEventHandler PreyConsumed;
 
 	public static readonly int MinLevel = 1;
 	public static readonly int MaxLevel = Int32.MaxValue;
@@ -53,7 +71,7 @@ public class GameModel : MonoBehaviour
 		{
 			return gameSuspended;
 		}
-
+		
 		set
 		{
 			if (gameSuspended != value)
@@ -62,6 +80,16 @@ public class GameModel : MonoBehaviour
 				GameSuspendedChanged.Invoke(this, new EventArgs());
 			}
 		}
+	}
+
+	public int PreyPopulationSize
+	{
+		get { return preyPopulation.Count; }
+	}
+
+	public int RoiPopulationSize
+	{
+		get { return roiPopulation.Count; }
 	}
 
 	protected List<OleloNoeau> oleloNoeau = new List<OleloNoeau>();
@@ -100,6 +128,9 @@ public class GameModel : MonoBehaviour
 		return result;
 	}
 
+	private LinkedList<PreyController> preyPopulation = new LinkedList<PreyController>();
+	private LinkedList<RoiController> roiPopulation = new LinkedList<RoiController>();
+
 	private GameModel()
 	{
 		
@@ -107,7 +138,22 @@ public class GameModel : MonoBehaviour
 
 	void Start()
 	{
-
+		GameController.Controller.FishSpawned += (sender, args) =>
+		{
+			AbstractFishController controller = args.SpawnedObject;
+			if(controller is RoiController)
+			{
+				roiPopulation.AddFirst((RoiController) controller);
+			}
+			else if(controller is PreyController)
+			{
+				preyPopulation.AddFirst((PreyController)controller);
+			}
+			else
+			{
+				Debug.Log("Unrecognized fish class spawned: " + controller);
+			}
+		};
 	}
 
 	void Update()

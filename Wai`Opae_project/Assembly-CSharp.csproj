@@ -45,12 +45,19 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\AbstractFishController.cs" />
      <Compile Include="Assets\Caustic Effct &amp; Underwater Fog\Shaders\CausticsProjector.cs" />
      <Compile Include="Assets\Caustic Effct &amp; Underwater Fog\Shaders\StandardCausticsShaderGUI.cs" />
      <Compile Include="Assets\Caustic Effct &amp; Underwater Fog\UnderwaterFog.cs" />
      <Compile Include="Assets\CursorMovement.cs" />
+     <Compile Include="Assets\FishAnimationController.cs" />
+     <Compile Include="Assets\GameController.cs" />
      <Compile Include="Assets\GameModel.cs" />
+     <Compile Include="Assets\LauncherController.cs" />
+     <Compile Include="Assets\PreyFishController.cs" />
      <Compile Include="Assets\ProjectileController.cs" />
+     <Compile Include="Assets\RoiController.cs" />
+     <Compile Include="Assets\Utils.cs" />
      <None Include="Assets\Caustic Effct &amp; Underwater Fog\Shaders\UnityStandardCausticsCore.cginc" />
      <None Include="Assets\Caustic Effct &amp; Underwater Fog\Shaders\StandardCaustics.shader" />
      <None Include="Assets\Caustic Effct &amp; Underwater Fog\Shaders\UnityStandardCausticsInput.cginc" />

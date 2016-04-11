@@ -1,0 +1,40 @@
+﻿using UnityEngine;
+using System.Collections;
+using System;
+using Assets;
+
+public class GameController : MonoBehaviour {
+
+	public delegate void FishSpawnedEventHandler(object sender, FishSpawnedEventArgs args);
+
+	public class FishSpawnedEventArgs : EventArgs {
+		public AbstractFishController SpawnedObject { get; private set; }
+		public FishSpawnedEventArgs(AbstractFishController spawnedObject)
+		{
+			SpawnedObject = Utils.RequireNonNull(spawnedObject);
+		}
+	}
+
+	public event FishSpawnedEventHandler FishSpawned;
+
+	private static GameController controller = null;
+	public static GameController Controller
+	{
+		get { return controller; }
+	}
+
+	// Use this for initialization
+	void Start () {
+		controller = new GameController();
+	}
+	
+	// Update is called once per frame
+	void Update () {
+	
+	}
+
+	protected void FireFishSpawnedEvent(GameObject spawnedObject)
+	{
+		FishSpawned.Invoke(this, new FishSpawnedEventArgs(Utils.GetAbstractFishController(spawnedObject)));
+	}
+}
