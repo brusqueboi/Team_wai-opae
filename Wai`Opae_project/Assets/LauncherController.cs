@@ -19,7 +19,7 @@ public class LauncherController : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		if (Input.GetButtonDown("AButton") && Time.realtimeSinceStartup - lastProjectileLaunch > interstitialDelay 
+		if (Input.GetButtonDown("RightBumper_P1") && Time.realtimeSinceStartup - lastProjectileLaunch > interstitialDelay 
 			&& loadedProjectile != null)
 		{
 			loadedProjectile.GetComponent<ProjectileController>().FireProjectile(target);
