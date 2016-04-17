@@ -20,6 +20,9 @@ ModelImporter:
     100024: 2x1_camera.Target
     100026: 3x1_camera
     100028: 3x1_camera.Target
+    100030: Respawn Trigger
+    100032: 1x2_collision_mesh_EXT
+    100034: 1x2_collision_mesh_INT
     400000: //RootNode
     400002: collision_mesh
     400004: ground_detail_plane
@@ -35,6 +38,9 @@ ModelImporter:
     400024: 2x1_camera.Target
     400026: 3x1_camera
     400028: 3x1_camera.Target
+    400030: Respawn Trigger
+    400032: 1x2_collision_mesh_EXT
+    400034: 1x2_collision_mesh_INT
     2300000: //RootNode
     2300002: collision_mesh
     2300004: ground_detail_plane
@@ -42,6 +48,9 @@ ModelImporter:
     2300008: water_plane
     2300010: 1x2_collision_mesh
     2300012: 1x3_collision_mesh
+    2300014: Respawn Trigger
+    2300016: 1x2_collision_mesh_EXT
+    2300018: 1x2_collision_mesh_INT
     3300000: //RootNode
     3300002: collision_mesh
     3300004: ground_detail_plane
@@ -49,6 +58,9 @@ ModelImporter:
     3300008: water_plane
     3300010: 1x2_collision_mesh
     3300012: 1x3_collision_mesh
+    3300014: Respawn Trigger
+    3300016: 1x2_collision_mesh_EXT
+    3300018: 1x2_collision_mesh_INT
     4300000: Box001
     4300002: collision_mesh
     4300004: ground_plane
@@ -56,6 +68,9 @@ ModelImporter:
     4300008: ground_detail_plane
     4300010: 1x3_collision_mesh
     4300012: 1x2_collision_mesh
+    4300014: Respawn Trigger
+    4300016: 1x2_collision_mesh_INT
+    4300018: 1x2_collision_mesh_EXT
     9500000: //RootNode
   materials:
     importMaterials: 1

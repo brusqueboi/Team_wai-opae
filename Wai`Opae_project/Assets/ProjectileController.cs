@@ -12,7 +12,6 @@ public class ProjectileController : MonoBehaviour
 	public Vector3 rotationOffset = Vector3.zero;
 	public float despawnDistance = 1000.0f; // 1 Km
 
-	private Transform target;
 	private Quaternion forwardRotation;
 	private Quaternion offsetRotation;
 	private Vector3 launchPosition;
@@ -49,9 +48,8 @@ public class ProjectileController : MonoBehaviour
 
 	public void FireProjectile(Transform target)
 	{
-		this.target = target;
 		launchPosition = gameObject.transform.position;
-		gameObject.transform.LookAt(target.position);
+		gameObject.transform.LookAt(target);
 		forwardRotation = gameObject.transform.rotation; // Save forward rotation.
 		gameObject.transform.Rotate(rotationOffset);
 		offsetRotation = gameObject.transform.rotation; // Save offset rotation.

@@ -8,33 +8,67 @@ namespace Assets
 {
 	public class RoiController : AbstractFishController
 	{
-		public string commonName;
-		public string scientificName;
+		public float acceleration = 10;
+		public override float Acceleration { get { return acceleration; } }
+
 		public Texture2D bitmap;
+		public override Texture2D Bitmap { get { return bitmap; } }
 
-		public override Texture2D GetBitmap()
+		public string commonName = "";
+		public override string CommonName { get { return commonName; } }
+
+		public float maxCollisionAvoidanceDistance = 7.0f;
+		public override float CollisionAvoidanceDist { get { return maxCollisionAvoidanceDistance; } }
+
+		public float maxSprintEnergy = 5.0f;
+		public override float MaxSprintEnergy { get { return maxSprintEnergy; } }
+
+		public float normalTurnRate = 180.0f;
+		public override float NormalTurnRate { get { return normalTurnRate; } }
+
+		public float turnRate = 180.0f;
+		public override float TurnRate
 		{
-			return bitmap;
+			get { return turnRate; }
+			protected set { turnRate = value; }
 		}
 
-		public override string GetCommonName()
+		public float sprintTurnRate = 315.0f;
+		public override float SprintTurnRate { get { return sprintTurnRate; } }
+
+		public float normalVelocity = 2;
+		public override float NormalVelocity { get { return normalVelocity; } }
+
+		public string scientificName = "";
+		public override string ScientificName { get { return scientificName; } }
+
+		public bool sprintEnabled = false;
+		public override bool SprintEnabled
 		{
-			return commonName;
+			get { return sprintEnabled; }
+			protected set { sprintEnabled = value; }
 		}
 
-		public override string GetScientificName()
+		public float sprintEnergy = 0.0f;
+		public override float SprintEnergy
 		{
-			return scientificName;
+			get { return sprintEnergy; }
+			protected set { sprintEnergy = value; }
 		}
 
-		public override Vector3 UpdatePosition(Quaternion rotation)
+		public float sprintVelocity = 4.0f;
+		public override float SprintVelocity { get { return sprintVelocity; } }
+
+		public float velocity = 0.0f;
+		public override float Velocity
 		{
-			return Position;
+			get	{ return velocity; }
+			protected set { velocity = value; }
 		}
 
-		public override Quaternion UpdateRotation()
+		public override float UpdateDirection(float collisionAvoidanceDir)
 		{
-			return Rotation;
+			return collisionAvoidanceDir;
 		}
 
 		public override void UpdateState()

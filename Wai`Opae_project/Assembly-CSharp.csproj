@@ -54,9 +54,11 @@
      <Compile Include="Assets\GameController.cs" />
      <Compile Include="Assets\GameModel.cs" />
      <Compile Include="Assets\LauncherController.cs" />
-     <Compile Include="Assets\PreyFishController.cs" />
+     <Compile Include="Assets\ObjectRespawnTrigger.cs" />
+     <Compile Include="Assets\PreyController.cs" />
      <Compile Include="Assets\ProjectileController.cs" />
      <Compile Include="Assets\RoiController.cs" />
+     <Compile Include="Assets\SpawnController.cs" />
      <Compile Include="Assets\Utils.cs" />
      <None Include="Assets\Caustic Effct &amp; Underwater Fog\Shaders\UnityStandardCausticsCore.cginc" />
      <None Include="Assets\Caustic Effct &amp; Underwater Fog\Shaders\StandardCaustics.shader" />
