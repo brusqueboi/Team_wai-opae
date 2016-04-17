@@ -89,6 +89,7 @@ public class UnderwaterFog : MonoBehaviour
 
     private void Cache()
     {
+        RenderSettings.fog = true;
         initialFogColor = RenderSettings.fogColor;
         initialFogDensity = RenderSettings.fogDensity;
     }
