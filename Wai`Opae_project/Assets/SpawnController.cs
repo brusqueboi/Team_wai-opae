@@ -1,7 +1,23 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System;
+using Assets;
 
 public class SpawnController : MonoBehaviour {
+
+	public delegate void FishSpawnEventHandler(object sender, FishSpawnEventArgs args);
+
+	public class FishSpawnEventArgs : EventArgs
+	{
+		public AbstractFishController SpawnedObject { get; private set; }
+
+		public FishSpawnEventArgs(GameObject spawnedObject)
+		{
+			SpawnedObject = Utils.RequireNonNull(spawnedObject.GetComponent<AbstractFishController>());
+		}
+	}
+
+	public event FishSpawnEventHandler OnFishSpawn;
 
 	public GameObject lookAtTarget;
 
@@ -21,7 +37,7 @@ public class SpawnController : MonoBehaviour {
 	{
 		if (spawnLocations != null && spawnLocations.Length > 0)
 		{
-			return spawnLocations[(int)((Random.value * spawnLocations.Length) + 0.5f)].transform.position;
+			return spawnLocations[(int)((UnityEngine.Random.value * spawnLocations.Length) + 0.5f)].transform.position;
 		}
 		else
 		{
@@ -34,6 +50,7 @@ public class SpawnController : MonoBehaviour {
 		Vector3 spawnLocation = SelectSpawnLocation();
 		obj.transform.position = spawnLocation;
 		obj.transform.LookAt(lookAtTarget.transform);
+		FireFishSpawned(obj);
 	}
 
 	// Use this for initialization
@@ -45,5 +62,10 @@ public class SpawnController : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 	
+	}
+
+	private void FireFishSpawned(GameObject spawnedObject)
+	{
+		OnFishSpawn.Invoke(this, new FishSpawnEventArgs(spawnedObject));
 	}
 }
