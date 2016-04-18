@@ -9,47 +9,196 @@ public class CursorMovement : MonoBehaviour {
     public Transform player4;
     private Vector3 movementVector;
     private CharacterController player;
+    private Renderer visible1;
+    private Renderer visible2;
+    private Renderer visible3;
+    private Renderer visible4;
     private float movementSpeed = 8;
     public int playerNumber;
+    private float x, y, z;
 
 	// Use this for initialization
 	void Start ()
     {
         player = this.GetComponent<CharacterController>();
+        setVisibility();
         checkForPlayers();
     }
 	
 	// Update is called once per frame
 	void Update () {
-        
-        // check player number and move object accordingly
-        if(playerNumber == 1)
+
+        // quit the .exe by pressing esc key
+        if(Input.GetKeyDown(KeyCode.Escape))
         {
-            movementVector.x = Input.GetAxis("LeftJoystickHorizontal_P1") * movementSpeed;
-            movementVector.y = Input.GetAxis("LeftJoystickVertical_P1") * movementSpeed;
+            Application.Quit();
         }
 
+        // check player number and move object accordingly
+        // player 1 movement
+        if (playerNumber == 1)
+        {
+            // toggles player 1 visibility
+            if (Input.GetButtonDown("StartButton_P1"))
+            {
+                if (visible1.enabled == false)
+                {
+                    visible1.enabled = true;
+                    //Debug.Log("Player 1 Enabled");
+                }
+
+                else
+                {
+                    visible1.enabled = false;
+                    //Debug.Log("Player 1 Disabled");
+                }
+            }
+
+            if (visible1.enabled == true)
+            {
+                x = player1.position.x;
+                y = player1.position.y;
+
+                player1.transform.position = new Vector3(x, y, 0);
+
+                movementVector.x = Input.GetAxis("LeftJoystickHorizontal_P1") * movementSpeed;
+                movementVector.y = Input.GetAxis("LeftJoystickVertical_P1") * movementSpeed;
+                player.Move(movementVector * Time.deltaTime);
+            }
+
+            /*if (Input.GetButtonDown("BackButton_P1"))
+            {
+                playerNumber++;
+            }*/
+        }
+
+        // player 2 movement
         else if(playerNumber == 2)
         {
-            movementVector.x = Input.GetAxis("LeftJoystickHorizontal_P2") * movementSpeed;
-            movementVector.y = Input.GetAxis("LeftJoystickVertical_P2") * movementSpeed;
+            // toggles player 2 visibility
+            if (Input.GetButtonDown("StartButton_P2"))
+            {
+                if (visible2.enabled == false)
+                {
+                    visible2.enabled = true;
+                    //Debug.Log("Player 2 Enabled");
+                }
+
+                else
+                {
+                    visible2.enabled = false;
+                    //Debug.Log("Player 2 Disabled");
+                }
+            }
+
+            if (visible2.enabled == true)
+            {
+                x = player2.position.x;
+                y = player2.position.y;
+
+                player2.transform.position = new Vector3(x, y, 0);
+
+                movementVector.x = Input.GetAxis("LeftJoystickHorizontal_P2") * movementSpeed;
+                movementVector.y = Input.GetAxis("LeftJoystickVertical_P2") * movementSpeed;
+                player.Move(movementVector * Time.deltaTime);
+            }
+
+            /*if (Input.GetButtonDown("BackButton_P1"))
+            {
+                playerNumber++;
+            }*/
         }
 
+        // player 3 movement
         else if(playerNumber == 3)
         {
-            movementVector.x = Input.GetAxis("LeftJoystickHorizontal_P3") * movementSpeed;
-            movementVector.y = Input.GetAxis("LeftJoystickVertical_P3") * movementSpeed;
+            // toggles player 3 visibility
+            if (Input.GetButtonDown("StartButton_P3"))
+            {
+                if (visible3.enabled == false)
+                {
+                    visible3.enabled = true;
+                    //Debug.Log("Player 3 Enabled");
+                }
+
+                else
+                {
+                    visible3.enabled = false;
+                    //Debug.Log("Player 3 Disabled");
+                }
+            }
+
+            if (visible3.enabled == true)
+            {
+                x = player3.position.x;
+                y = player3.position.y;
+
+                player3.transform.position = new Vector3(x, y, 0);
+
+                movementVector.x = Input.GetAxis("LeftJoystickHorizontal_P3") * movementSpeed;
+                movementVector.y = Input.GetAxis("LeftJoystickVertical_P3") * movementSpeed;
+                player.Move(movementVector * Time.deltaTime);
+            }
+
+            /*if (Input.GetButtonDown("BackButton_P1"))
+            {
+                playerNumber++;
+            }*/
         }
 
+        // player 4 movement
         else if(playerNumber == 4)
         {
-            movementVector.x = Input.GetAxis("LeftJoystickHorizontal_P4") * movementSpeed;
-            movementVector.y = Input.GetAxis("LeftJoystickVertical_P4") * movementSpeed;
-        }
+            // toggle player 4 visibility
+            if (Input.GetButtonDown("StartButton_P4"))
+            {
+                if (visible4.enabled == false)
+                {
+                    visible4.enabled = true;
+                    //Debug.Log("Player 4 Enabled");
+                }
 
-        player.Move(movementVector * Time.deltaTime);
+                else
+                {
+                    visible4.enabled = false;
+                    //Debug.Log("Player 4 Disabled");
+                }
+            }
+
+            if (visible4.enabled == true)
+            {
+                x = player4.position.x;
+                y = player4.position.y;
+
+                player4.transform.position = new Vector3(x, y, 0);
+
+                movementVector.x = Input.GetAxis("LeftJoystickHorizontal_P4") * movementSpeed;
+                movementVector.y = Input.GetAxis("LeftJoystickVertical_P4") * movementSpeed;
+                player.Move(movementVector * Time.deltaTime);
+            }
+
+            /*if (Input.GetButtonDown("BackButton_P1"))
+            {
+                playerNumber = 1;
+            }*/
+        }
 	}
 
+    // sets visibility of player cursor at start. start with one player
+    void setVisibility()
+    {
+        visible1 = player1.GetComponent<Renderer>();
+        visible2 = player2.GetComponent<Renderer>();
+        visible3 = player3.GetComponent<Renderer>();
+        visible4 = player4.GetComponent<Renderer>();
+
+        visible1.enabled = true;
+        visible2.enabled = true;
+        visible3.enabled = true;
+        visible4.enabled = true;
+    }
+
+    // ignores the cursor collision of other players
     void checkForPlayers()
     {
         if(playerNumber == 1)
