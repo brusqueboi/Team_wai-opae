@@ -13,6 +13,11 @@ public class UI : MonoBehaviour
 {
     public delegate void CountDownEvent();
     public static event CountDownEvent OnCountDownFinish;
+    public AudioClip tcount;
+    public AudioClip fishfood;
+    public float fvol = 0.7f;
+    public float tvol = 0.3f;
+    private AudioSource tsource { get { return GetComponent<AudioSource>(); } }
 
     #region Public Variables
 
@@ -84,6 +89,7 @@ public class UI : MonoBehaviour
     private void OnEatFish(string fishCommonName, string fishScientificName)
     {
         //remove one prey fish when one is eaten
+        playFishEatenSound();
         preyAmount--;
 
         //we remove one good fish, decreasing the max number from the health bar
@@ -104,6 +110,8 @@ public class UI : MonoBehaviour
         countDownTimer.text = seconds.ToString();
         //start countdown
         StartCoroutine(CountDown());
+        gameObject.AddComponent<AudioSource>();
+        tsource.playOnAwake = false;
     }
 
     private void Update()
@@ -196,6 +204,10 @@ public class UI : MonoBehaviour
     {
         while (seconds > 0)
         {
+            if(seconds <= 10)
+            {
+                playTimerSound();
+            }
             //wait for one second
             yield return oneSecond;
             //remove one second from our total seconds
@@ -211,6 +223,16 @@ public class UI : MonoBehaviour
         //print a message on console at the end of countdown
         if (Debug.isDebugBuild)
             print("Countdown is over!");
+    }
+
+    void playTimerSound()
+    {
+        tsource.PlayOneShot(tcount, tvol);
+    }
+
+    void playFishEatenSound()
+    {
+        tsource.PlayOneShot(fishfood, fvol);
     }
 	
 	#endregion //Private Methods
