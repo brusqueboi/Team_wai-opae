@@ -1,5 +1,9 @@
 ﻿/*==============================================================================
+Update 19/04/2016:
 
+-removed tags for good fish and bad fish.
+-To get the number of fish the script is now using _gameModel.PreyPopulationSize and _gamemodel.RoiPopulationSize.
+ 
 ==============================================================================*/
 
 using UnityEngine;
@@ -34,6 +38,9 @@ public class UI : MonoBehaviour
     [Tooltip("Referece to the Health Bar")]
     public Slider healthBar;
 
+    [Tooltip("Reference to the game model")]
+    public GameModel _gameModel;
+
     [Tooltip("Referece to the Roi amount display")]
     public Text roiAmountDisplay;
 
@@ -50,12 +57,6 @@ public class UI : MonoBehaviour
 
     public Image eatInfoPanel;
     public Text eatInfoPanelText;   
-
-    [HideInInspector]
-    public int roiAmount;
-
-    [HideInInspector]
-    public int preyAmount;
 
     #endregion //Public Variables
 
@@ -83,17 +84,16 @@ public class UI : MonoBehaviour
 
     private void OnEnable()
     {
+        //event subscribe
         EatFish.OnEatFish += OnEatFish;
     }
 
     private void OnEatFish(string fishCommonName, string fishScientificName)
     {
-        //remove one prey fish when one is eaten
         playFishEatenSound();
-        preyAmount--;
 
         //we remove one good fish, decreasing the max number from the health bar
-        healthBar.maxValue = preyAmount;
+        healthBar.maxValue = _gameModel.PreyPopulationSize;
 
         //show the info panel with the common name
         StartCoroutine(ShowEatInfoPanel(fishCommonName));
@@ -101,6 +101,7 @@ public class UI : MonoBehaviour
 
     private void OnDisable()
     {
+        //event unsubscribe
         EatFish.OnEatFish -= OnEatFish;
     }
 
@@ -138,12 +139,7 @@ public class UI : MonoBehaviour
         oneSecond = new WaitForSeconds(1);
         waitEatPanelTimer = new WaitForSeconds(eatPanelTimer);
         //set the health bar max value = to the amount of fish
-        healthBar.maxValue = GetTotalFish();
-
-        //store amount of roi fishes
-        roiAmount = GameObject.FindGameObjectsWithTag("Bad Fish").Length;
-        //store amount of prey fishes
-        preyAmount = GameObject.FindGameObjectsWithTag("Good Fish").Length;
+        healthBar.maxValue = (_gameModel.RoiPopulationSize + _gameModel.PreyPopulationSize);
 
         //save initial color of the panel
         eatInfoPanel_initialColor = eatInfoPanel.color;
@@ -152,28 +148,15 @@ public class UI : MonoBehaviour
     private void UpdateHealthBar()
     {
         //update health bar
-        if (healthBar.value != roiAmount)
-            healthBar.value = roiAmount;
+        if (healthBar.value != _gameModel.RoiPopulationSize)
+            healthBar.value = _gameModel.RoiPopulationSize;
 
         //update Roi counter
-        if (roiAmount.ToString() != roiAmountDisplay.text)
-            roiAmountDisplay.text = roiAmount.ToString();
+        if (_gameModel.RoiPopulationSize.ToString() != roiAmountDisplay.text)
+            roiAmountDisplay.text = _gameModel.RoiPopulationSize.ToString();
         //update prey counter
-        if (preyAmountDisplay.text != preyAmount.ToString())
-            preyAmountDisplay.text = preyAmount.ToString();
-    }
-
-    /// <summary>
-    /// Return the total amount of fishes in the level (the sum of good and bad fishes)
-    /// </summary>
-    /// <returns></returns>
-    private int GetTotalFish()
-    {
-        //find all fishes in the level
-        int totalFish = GameObject.FindGameObjectsWithTag("Bad Fish").Length;
-        totalFish += GameObject.FindGameObjectsWithTag("Good Fish").Length;
-
-        return totalFish;
+        if (preyAmountDisplay.text != _gameModel.PreyPopulationSize.ToString())
+            preyAmountDisplay.text = _gameModel.PreyPopulationSize.ToString();
     }
 
     private IEnumerator ShowEatInfoPanel(string fishName)
