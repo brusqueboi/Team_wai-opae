@@ -87,6 +87,7 @@
     <None Include="Assets\Caustic Effct &amp; Underwater Fog\Shaders\StandardCaustics.shader" />
     <None Include="Assets\Caustic Effct &amp; Underwater Fog\Shaders\UnityStandardCausticsCore.cginc" />
     <None Include="Assets\Caustic Effct &amp; Underwater Fog\Shaders\UnityStandardCausticsInput.cginc" />
+    <None Include="Assets\audio\Rocklynn Productions - Water Splash Pack\Read me.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\SyntaxTree\UnityVS\2015\UnityVS.CSharp.targets" />
 </Project>
