@@ -15,7 +15,8 @@ public class CursorMovement : MonoBehaviour {
     private Renderer visible4;
     private float movementSpeed = 8;
     public int playerNumber;
-    private float x, y, z;
+    private float x, z;
+    private const float y = 1.87f;
 
 	// Use this for initialization
 	void Start ()
@@ -33,6 +34,10 @@ public class CursorMovement : MonoBehaviour {
         {
             Application.Quit();
         }
+
+        // get x and z axis of current player cursor. y is constant
+        x = player.transform.position.x;
+        z = player.transform.position.z;
 
         // check player number and move object accordingly
         // player 1 movement
@@ -54,15 +59,13 @@ public class CursorMovement : MonoBehaviour {
                 }
             }
 
-            if (visible1.enabled == true)
+            if (visible1.isVisible)
             {
-                x = player1.position.x;
-                y = player1.position.y;
-
-                player1.transform.position = new Vector3(x, y, 0);
+                // makes cursor stay on a constant y axix position. player can only move on x, z axis
+                player.transform.position = new Vector3(x, y, z);
 
                 movementVector.x = Input.GetAxis("LeftJoystickHorizontal_P1") * movementSpeed;
-                movementVector.y = Input.GetAxis("LeftJoystickVertical_P1") * movementSpeed;
+                movementVector.z = Input.GetAxis("LeftJoystickVertical_P1") * movementSpeed/2;
                 player.Move(movementVector * Time.deltaTime);
             }
 
@@ -91,12 +94,10 @@ public class CursorMovement : MonoBehaviour {
                 }
             }
 
-            if (visible2.enabled == true)
+            if (visible2.isVisible)
             {
-                x = player2.position.x;
-                y = player2.position.y;
-
-                player2.transform.position = new Vector3(x, y, 0);
+                // makes cursor stay on a constant y axix position. player can only move on x, z axis
+                player.transform.position = new Vector3(x, y, z);
 
                 movementVector.x = Input.GetAxis("LeftJoystickHorizontal_P2") * movementSpeed;
                 movementVector.y = Input.GetAxis("LeftJoystickVertical_P2") * movementSpeed;
@@ -128,12 +129,10 @@ public class CursorMovement : MonoBehaviour {
                 }
             }
 
-            if (visible3.enabled == true)
+            if (visible3.isVisible)
             {
-                x = player3.position.x;
-                y = player3.position.y;
-
-                player3.transform.position = new Vector3(x, y, 0);
+                // makes cursor stay on a constant y axix position. player can only move on x, z axis
+                player.transform.position = new Vector3(x, y, z);
 
                 movementVector.x = Input.GetAxis("LeftJoystickHorizontal_P3") * movementSpeed;
                 movementVector.y = Input.GetAxis("LeftJoystickVertical_P3") * movementSpeed;
@@ -165,12 +164,10 @@ public class CursorMovement : MonoBehaviour {
                 }
             }
 
-            if (visible4.enabled == true)
+            if (visible4.isVisible)
             {
-                x = player4.position.x;
-                y = player4.position.y;
-
-                player4.transform.position = new Vector3(x, y, 0);
+                // makes cursor stay on a constant y axix position. player can only move on x, z axis
+                player.transform.position = new Vector3(x, y, z);
 
                 movementVector.x = Input.GetAxis("LeftJoystickHorizontal_P4") * movementSpeed;
                 movementVector.y = Input.GetAxis("LeftJoystickVertical_P4") * movementSpeed;
