@@ -25,12 +25,15 @@ public class GameController : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		controller = new GameController();
+		controller = this;
+		GameModel.Model.Start();
+		SpawnController.Controller.Start();
 	}
 	
 	// Update is called once per frame
 	void Update () {
-	
+		GameModel.Model.Update();
+		SpawnController.Controller.Update();
 	}
 
 	protected void FireFishSpawnedEvent(GameObject spawnedObject)

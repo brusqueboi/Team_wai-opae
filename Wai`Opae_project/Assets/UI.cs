@@ -38,9 +38,6 @@ public class UI : MonoBehaviour
     [Tooltip("Referece to the Health Bar")]
     public Slider healthBar;
 
-    [Tooltip("Reference to the game model")]
-    public GameModel _gameModel;
-
     [Tooltip("Referece to the Roi amount display")]
     public Text roiAmountDisplay;
 
@@ -93,7 +90,7 @@ public class UI : MonoBehaviour
         playFishEatenSound();
 
         //we remove one good fish, decreasing the max number from the health bar
-        healthBar.maxValue = _gameModel.PreyPopulationSize;
+        healthBar.maxValue = GameModel.Model.PreyPopulationSize;
 
         //show the info panel with the common name
         StartCoroutine(ShowEatInfoPanel(fishCommonName));
@@ -139,7 +136,7 @@ public class UI : MonoBehaviour
         oneSecond = new WaitForSeconds(1);
         waitEatPanelTimer = new WaitForSeconds(eatPanelTimer);
         //set the health bar max value = to the amount of fish
-        healthBar.maxValue = (_gameModel.RoiPopulationSize + _gameModel.PreyPopulationSize);
+        healthBar.maxValue = (GameModel.Model.RoiPopulationSize + GameModel.Model.PreyPopulationSize);
 
         //save initial color of the panel
         eatInfoPanel_initialColor = eatInfoPanel.color;
@@ -148,15 +145,15 @@ public class UI : MonoBehaviour
     private void UpdateHealthBar()
     {
         //update health bar
-        if (healthBar.value != _gameModel.RoiPopulationSize)
-            healthBar.value = _gameModel.RoiPopulationSize;
+        if (healthBar.value != GameModel.Model.RoiPopulationSize)
+            healthBar.value = GameModel.Model.RoiPopulationSize;
 
         //update Roi counter
-        if (_gameModel.RoiPopulationSize.ToString() != roiAmountDisplay.text)
-            roiAmountDisplay.text = _gameModel.RoiPopulationSize.ToString();
+        if (GameModel.Model.RoiPopulationSize.ToString() != roiAmountDisplay.text)
+            roiAmountDisplay.text = GameModel.Model.RoiPopulationSize.ToString();
         //update prey counter
-        if (preyAmountDisplay.text != _gameModel.PreyPopulationSize.ToString())
-            preyAmountDisplay.text = _gameModel.PreyPopulationSize.ToString();
+        if (preyAmountDisplay.text != GameModel.Model.PreyPopulationSize.ToString())
+            preyAmountDisplay.text = GameModel.Model.PreyPopulationSize.ToString();
     }
 
     private IEnumerator ShowEatInfoPanel(string fishName)

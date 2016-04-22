@@ -3,7 +3,7 @@ using System.Collections;
 using System;
 using Assets;
 
-public class SpawnController : MonoBehaviour {
+public class SpawnController {
 
 	public delegate void FishSpawnEventHandler(object sender, FishSpawnEventArgs args);
 
@@ -23,7 +23,7 @@ public class SpawnController : MonoBehaviour {
 
 	public GameObject[] spawnLocations;
 
-	private static SpawnController controller;
+	private static SpawnController controller = new SpawnController();
 	public static SpawnController Controller {
 		get { return controller; }
 	}
@@ -54,13 +54,13 @@ public class SpawnController : MonoBehaviour {
 	}
 
 	// Use this for initialization
-	void Start () {
+	public void Start () {
 		controller = this;
 		spawnLocations = GameObject.FindGameObjectsWithTag("Respawn");
 	}
 	
 	// Update is called once per frame
-	void Update () {
+	public void Update () {
 	
 	}
 

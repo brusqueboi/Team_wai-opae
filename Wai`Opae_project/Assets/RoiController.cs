@@ -73,7 +73,7 @@ namespace Assets
 
 		public override void UpdateState()
 		{
-			// Do nothing.
+			Debug.Log("Neighbors: " + neighbors.Count);
 		}
 	}
 }

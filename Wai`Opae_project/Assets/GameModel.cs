@@ -5,37 +5,13 @@ using System.Collections.Generic;
 using Assets;
 using UnityEngine.UI;
 
-public class GameModel : MonoBehaviour
+public class GameModel
 {
-
+	// Event Delegates
 	public delegate void PreyConsumedEventHandler(object sender, PreyConsumedEventArgs args);
-
-	public class PreyConsumedEventArgs : EventArgs
-	{
-		public PreyController PreyObject { get; private set; }
-
-		public RoiController RoiObject { get; private set; }
-
-		public PreyConsumedEventArgs(PreyController prey, RoiController roi)
-		{
-			PreyObject = Utils.RequireNonNull(prey);
-			RoiObject = Utils.RequireNonNull(roi);
-		}
-	}
-
 	public delegate void RoiCaughtEventHandler(object sender, PreyConsumedEventArgs args);
 
-	public class RoiCaughtEventArgs : EventArgs {
-		public PlayerModel Player  { get; private set; }
-
-		public RoiController RoiObject { get; private set; }
-
-		public RoiCaughtEventArgs(PlayerModel player, RoiController roi) {
-			Player = Utils.RequireNonNull(player);
-			RoiObject = Utils.RequireNonNull(roi);
-		}
-	}
-
+	// Events
 	public event EventHandler GameSuspendedChanged;
 	public event EventHandler LevelChanged;
 	public event EventHandler EndgameDetected;
@@ -45,14 +21,15 @@ public class GameModel : MonoBehaviour
 	public static readonly int MinLevel = 1;
 	public static readonly int MaxLevel = Int32.MaxValue;
 
+	protected List<OleloNoeau> oleloNoeau = new List<OleloNoeau>();
+	protected LinkedList<PreyController> preyPopulation = new LinkedList<PreyController>();
+	protected LinkedList<RoiController> roiPopulation = new LinkedList<RoiController>();
+
 	protected static GameModel model = new GameModel();
-	public static GameModel Model
-	{
-		get
-		{
-			return model;
-		}
-	}
+	public static GameModel Model { get { return model; }}
+
+	protected PlayerModel[] players = new PlayerModel[4];
+	public PlayerModel[] Players { get { return (PlayerModel[]) players.Clone(); }}
 
 	protected float elapsedTime = 0.0f;
 	public float ElapsedTime { get { return elapsedTime; }}
@@ -63,11 +40,7 @@ public class GameModel : MonoBehaviour
 	protected int level = 1;
 	public int Level
 	{
-		get
-		{
-			return level;
-		}
-
+		get { return level; }
 		set
 		{
 			if (value != level)
@@ -88,12 +61,8 @@ public class GameModel : MonoBehaviour
 	protected bool gameSuspended = true;
 	public bool GameSuspended
 	{
-		get
-		{
-			return gameSuspended;
-		}
-		
-		set
+		get { return gameSuspended; }
+				set
 		{
 			if (gameSuspended != value)
 			{
@@ -103,17 +72,23 @@ public class GameModel : MonoBehaviour
 		}
 	}
 
-	public int PreyPopulationSize
+	public int PreyPopulationSize {	get { return preyPopulation.Count; }}
+	public int RoiPopulationSize { get { return roiPopulation.Count; }}
+
+	protected GameModel()
 	{
-		get { return preyPopulation.Count; }
+		
 	}
 
-	public int RoiPopulationSize
+	public PlayerModel GetPlayer(int playerId)
 	{
-		get { return roiPopulation.Count; }
+		if(playerId < 0 || playerId > 4)
+		{
+			return null;
+		}
+		return players[playerId - 1];
 	}
 
-	protected List<OleloNoeau> oleloNoeau = new List<OleloNoeau>();
 	public string getEnglishOleloNoeau(int level)
 	{
 		return getOleloNoeau(level).EnglishText;
@@ -123,6 +98,77 @@ public class GameModel : MonoBehaviour
 	{
 		return getOleloNoeau(level).HawaiianText;
 	}
+
+	public void Start()
+	{
+		players[0] = PlayerModel.BuildPlayerModel(1);
+		players[1] = PlayerModel.BuildPlayerModel(2);
+		players[2] = PlayerModel.BuildPlayerModel(3);
+		players[3] = PlayerModel.BuildPlayerModel(4);
+		for (int i = 0; i < players.Length; i++)
+		{
+			if (players[i] != null)
+			{
+				players[i].Start();
+			}
+		}
+
+		GameController.Controller.FishSpawned += (sender, args) =>
+		{
+			AbstractFishController controller = args.SpawnedObject;
+			if (controller is RoiController)
+			{
+				roiPopulation.AddFirst((RoiController)controller);
+			}
+			else if (controller is PreyController)
+			{
+				preyPopulation.AddFirst((PreyController)controller);
+			}
+			else
+			{
+				Debug.Log("Unrecognized fish class spawned: " + controller);
+			}
+		};
+		remainingTime = GetMaxTime(level);
+		InitOleloNoeaus();
+		SpawnController.Controller.OnFishSpawn += (sender, args) =>
+		{
+			if (args.SpawnedObject is PreyController)
+			{
+				preyPopulation.AddLast((PreyController)args.SpawnedObject);
+			}
+			else if (args.SpawnedObject is RoiController)
+			{
+				roiPopulation.AddLast((RoiController)args.SpawnedObject);
+			}
+			else
+			{
+				Debug.Log("Unrecognized fish spawned: " + args.SpawnedObject.name);
+			}
+		};
+	}
+
+	public void Update()
+	{
+		if (remainingTime > 0.0f)
+		{
+			remainingTime = Mathf.Clamp((remainingTime - Time.deltaTime), 0.0f, GetMaxTime(Level));
+			if (remainingTime == 0.0f && EndgameDetected != null)
+			{
+				EndgameDetected.Invoke(this, new EventArgs());
+			}
+		}
+		// Update player models.
+		for(int i = 0; i < players.Length; i++)
+		{
+			if(players[i] != null)
+			{
+				players[i].Update();
+            }
+		}
+	}
+
+
 
 	private float GetMaxTime(int level)
 	{
@@ -154,60 +200,29 @@ public class GameModel : MonoBehaviour
 		return result;
 	}
 
-	private LinkedList<PreyController> preyPopulation = new LinkedList<PreyController>();
-	private LinkedList<RoiController> roiPopulation = new LinkedList<RoiController>();
-
-	private GameModel()
+	public class PreyConsumedEventArgs : EventArgs
 	{
-		
+		public PreyController PreyObject { get; private set; }
+
+		public RoiController RoiObject { get; private set; }
+
+		public PreyConsumedEventArgs(PreyController prey, RoiController roi)
+		{
+			PreyObject = Utils.RequireNonNull(prey);
+			RoiObject = Utils.RequireNonNull(roi);
+		}
 	}
 
-	void Start()
+	public class RoiCaughtEventArgs : EventArgs
 	{
-		GameController.Controller.FishSpawned += (sender, args) =>
-		{
-			AbstractFishController controller = args.SpawnedObject;
-			if(controller is RoiController)
-			{
-				roiPopulation.AddFirst((RoiController) controller);
-			}
-			else if(controller is PreyController)
-			{
-				preyPopulation.AddFirst((PreyController)controller);
-			}
-			else
-			{
-				Debug.Log("Unrecognized fish class spawned: " + controller);
-			}
-		};
-		remainingTime = GetMaxTime(level);
-		InitOleloNoeaus();
-		SpawnController.Controller.OnFishSpawn += (sender, args) =>
-		{
-			if(args.SpawnedObject is PreyController)
-			{
-				preyPopulation.AddLast((PreyController) args.SpawnedObject);
-			}
-			else if (args.SpawnedObject is RoiController)
-			{
-				roiPopulation.AddLast((RoiController)args.SpawnedObject);
-			}
-			else
-			{
-				Debug.Log("Unrecognized fish spawned: " + args.SpawnedObject.name);
-			}
-		};
-	}
+		public PlayerModel Player { get; private set; }
 
-	void Update()
-	{
-		if(remainingTime > 0.0f)
+		public RoiController RoiObject { get; private set; }
+
+		public RoiCaughtEventArgs(PlayerModel player, RoiController roi)
 		{
-			remainingTime = Mathf.Clamp((remainingTime - Time.deltaTime), 0.0f, GetMaxTime(Level));
-			if (remainingTime == 0.0f)
-			{
-				EndgameDetected.Invoke(this, new EventArgs());
-			}
+			Player = Utils.RequireNonNull(player);
+			RoiObject = Utils.RequireNonNull(roi);
 		}
 	}
 

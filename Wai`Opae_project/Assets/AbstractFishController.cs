@@ -64,7 +64,7 @@ public abstract class AbstractFishController : MonoBehaviour {
 		set	{ FishObject.transform.localScale = value; }
 	}
 
-	private LinkedList<AbstractFishController> neighbors = new LinkedList<AbstractFishController>();
+	protected LinkedList<AbstractFishController> neighbors = new LinkedList<AbstractFishController>();
 
 	public void BeforeUpdate()
 	{
@@ -216,39 +216,19 @@ public abstract class AbstractFishController : MonoBehaviour {
 
 	void OnTriggerEnter(Collider collisionInfo)
 	{
-		Debug.Log(string.Format("Trigger ENTER detected: {0} <AbstractFishController.OnTriggerEnter()>", collisionInfo.name));
-		if (collisionInfo.name == "Respawn Trigger")
+		AbstractFishController controller = Utils.GetAbstractFishController(collisionInfo.gameObject);
+		if (controller != null && !neighbors.Contains(controller))
 		{
-			Debug.Log("Respawn: gameobject");
-			//SpawnController.Controller.Respawn(FishObject);
+			neighbors.AddLast(controller);
 		}
-		else
-		{
-			AbstractFishController controller = Utils.GetAbstractFishController(collisionInfo.gameObject);
-			if (controller != null)
-			{
-				neighbors.AddLast(controller);
-			}
-		}	
 	}
 
 	void OnTriggerExit(Collider collisionInfo)
 	{
-		Debug.Log("Trigger EXIT detected! <AbstractFishController.OnTriggerEnter()>");
 		AbstractFishController controller = Utils.GetAbstractFishController(collisionInfo.gameObject);
 		if (controller != null)
 		{
 			neighbors.Remove(controller);
 		}
-	}
-
-	void OnCollisionEnter(Collision collisionInfo)
-	{
-		Debug.Log("Collision ENTER detected! <AbstractFishController.OnCollisionEnter()>");
-	}
-
-	void OnCollisionExit(Collision collisionInfo)
-	{
-		Debug.Log("Collision EXIT detected! <AbstractFishController.OnCollisionEnter()>");
 	}
 }

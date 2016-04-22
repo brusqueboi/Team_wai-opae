@@ -7,32 +7,12 @@ To get the name is now using _preyController.commonName and _preyController.scie
 ==============================================================================*/
 
 using UnityEngine;
-using System.Collections;
 using Assets;
 
 public class EatFish : MonoBehaviour 
 {
     public delegate void EatFishEvent(string fishCommonName, string fishScientificName);
     public static event EatFishEvent OnEatFish;
-
-
-	#region Public Variables
-	
-	
-	
-	#endregion //Public Variables
-	
-	
-	
-	#region Private Variables
-	
-	
-	
-	#endregion //Private Variables
-	
-
-	
-	#region Unity Engine & Events
 	
 	private void OnTriggerEnter(Collider collider)
     {
@@ -50,23 +30,4 @@ public class EatFish : MonoBehaviour
             Destroy(collider.gameObject);
         }
     }
-	
-	#endregion //Unity Engine & Events
-	
-	
-	
-	#region Public Methods
-	
-	
-	
-	#endregion //Public Methods
-	
-	
-	
-	#region Private Methods
-	
-	
-	
-	#endregion //Private Methods
-	
 }
