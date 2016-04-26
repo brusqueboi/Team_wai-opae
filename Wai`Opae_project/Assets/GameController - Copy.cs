@@ -23,21 +23,17 @@ public class GameController : MonoBehaviour {
 		get { return controller; }
 	}
 
-    private AudioController audioController = new AudioController();
-
 	// Use this for initialization
 	void Start () {
 		controller = this;
 		GameModel.Model.Start();
 		SpawnController.Controller.Start();
-        audioController.Start();
 	}
 	
 	// Update is called once per frame
 	void Update () {
 		GameModel.Model.Update();
 		SpawnController.Controller.Update();
-        audioController.Update();
 	}
 
 	protected void FireFishSpawnedEvent(GameObject spawnedObject)
