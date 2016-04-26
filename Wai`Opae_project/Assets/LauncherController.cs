@@ -1,23 +1,35 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System;
 
 public class LauncherController : MonoBehaviour {
+	// Events
+	public event EventHandler<ProjectileEventArgs> ProjectileLoaded;
+	public event EventHandler<ProjectileEventArgs> ProjectileLaunched;
+	public event EventHandler<ProjectileEventArgs> ProjectileHit;
+	public event EventHandler<ProjectileEventArgs> ProjectileMiss;
 
+	// Control
 	public GameObject projectile;
 	public Transform target;
-	public Transform cameraPosition;
 	public Vector3 cameraOffset;
     public AudioClip shoot;
     public AudioClip splash;
-    public Transform launchPosition;
 	public float interstitialDelay = 1.0f;
 	public float reloadDelay = 1.0f;
+	public Vector3 reloadOffset;
+	public float reloadDuration = 1.0f;
+
+	// Audio
     public float delay = 1;
     public float vol = .3f;
     public float svol = .7f;
 	public int playerId = 1;
 	public float multiplayerSpreadDist = 2.0f;
+
+	private Vector3 originalCameraPosition;
+	private float reloadStartTime;
 
 	protected bool visible = true;
 	public bool Visible
@@ -40,6 +52,7 @@ public class LauncherController : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
+		originalCameraPosition = GameObject.Find("Main Camera").transform.position;
 		loadedProjectile = LoadProjectile();
         gameObject.AddComponent<AudioSource>();
         source.playOnAwake = false;
@@ -60,13 +73,21 @@ public class LauncherController : MonoBehaviour {
             PlaySoundDelay();
            
         }
-		else if (loadedProjectile != null)
+		else if(loadedProjectile != null && loadedProjectile.transform.position != transform.position)
+		{
+			float animProgress = (Time.time - reloadStartTime) / reloadDuration * 10;
+
+			loadedProjectile.transform.position = 
+				Vector3.Lerp((transform.position - reloadOffset), transform.position, animProgress );
+		}
+		// Rotate projectile to look at target.
+		if (loadedProjectile != null)
 		{
 			ProjectileController loadedController = loadedProjectile.GetComponent<ProjectileController>();
 			loadedProjectile.transform.LookAt(target);
 			loadedProjectile.transform.Rotate(loadedController.rotationOffset);
 		}
-
+		// Position launcher.
 		if (Visible)
 		{
 			int enabledPlayers = 0;
@@ -87,7 +108,7 @@ public class LauncherController : MonoBehaviour {
 			enabledPlayers += (enabledPlayers > 3 ? 0 : 1);
 			float positionPercent = (float)thisEnabledPlayersIdx / (float)enabledPlayers;
 			
-			Vector3 updatedPos = cameraPosition.position + cameraOffset;
+			Vector3 updatedPos = originalCameraPosition + cameraOffset;
 			updatedPos.x -= multiplayerSpreadDist / 2.0f;
 			updatedPos.x += multiplayerSpreadDist * (positionPercent);
 			gameObject.transform.position = updatedPos;
@@ -114,16 +135,63 @@ public class LauncherController : MonoBehaviour {
 	public GameObject LoadProjectile()
 	{
 		GameObject projectileClone =
-				(GameObject)Instantiate(projectile, launchPosition.position, launchPosition.rotation);
-		projectileClone.transform.position = launchPosition.position;
+				(GameObject)Instantiate(projectile, transform.position - reloadOffset, transform.rotation);
 		projectileClone.transform.LookAt(target);
 		projectileClone.transform.Rotate(projectileClone.GetComponent<ProjectileController>().rotationOffset);
+		reloadStartTime = Time.time;
 		return projectileClone;
 	}
 
 	private IEnumerator LauncherReload()
 	{
-		yield return new WaitForSeconds(reloadDelay);
+		yield return new WaitForSeconds(reloadDelay - reloadDuration);
 		loadedProjectile = LoadProjectile();
+		ProjectileController controller = loadedProjectile.GetComponent<ProjectileController>();
+		controller.CollisionHit += (sender, args) => FireProjectileHit(controller);
+		controller.CollisionMiss += (sender, args) => FireProjectileMiss(controller);
+		FireProjectileLoaded(controller);
+	}
+
+	private void FireProjectileLoaded(ProjectileController projectile)
+	{
+		if (ProjectileLoaded != null)
+		{
+			ProjectileLoaded.Invoke(this, new ProjectileEventArgs(projectile));
+		}
+	}
+
+	private void FireProjectileLaunched(ProjectileController projectile)
+	{
+		if (ProjectileLaunched != null)
+		{
+			ProjectileLaunched.Invoke(this, new ProjectileEventArgs(projectile));
+		}
+	}
+
+	private void FireProjectileHit(ProjectileController projectile)
+	{
+		if (ProjectileHit != null)
+		{
+			ProjectileHit.Invoke(this, new ProjectileEventArgs(projectile));
+		}
+	}
+
+	private void FireProjectileMiss(ProjectileController projectile)
+	{
+		if (ProjectileMiss != null)
+		{
+			ProjectileMiss.Invoke(this, new ProjectileEventArgs(projectile));
+		}
+	}
+
+
+	public class ProjectileEventArgs : EventArgs
+	{
+		public ProjectileController Projectile { get; private set; }
+
+		public ProjectileEventArgs(ProjectileController projectile)
+		{
+			Projectile = projectile;
+		}
 	}
 }

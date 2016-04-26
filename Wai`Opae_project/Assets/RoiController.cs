@@ -36,7 +36,7 @@ namespace Assets
 		public float sprintTurnRate = 315.0f;
 		public override float SprintTurnRate { get { return sprintTurnRate; } }
 
-		public float normalVelocity = 2;
+		public float normalVelocity = 1.6f;
 		public override float NormalVelocity { get { return normalVelocity; } }
 
 		public string scientificName = "";
@@ -56,7 +56,7 @@ namespace Assets
 			protected set { sprintEnergy = value; }
 		}
 
-		public float sprintVelocity = 4.0f;
+		public float sprintVelocity = 2.9f;
 		public override float SprintVelocity { get { return sprintVelocity; } }
 
 		public float velocity = 0.0f;
@@ -66,14 +66,62 @@ namespace Assets
 			protected set { velocity = value; }
 		}
 
-		public override float UpdateDirection(float collisionAvoidanceDir)
+		public float normalDetectionRadius = 2.5f;
+		public override float NormalDetectionRadius { get { return normalDetectionRadius; } }
+
+		public float detectionRadius = 2.5f;
+		public override float DetectionRadius
 		{
-			return collisionAvoidanceDir;
+			get { return detectionRadius; }
+			protected set { detectionRadius = value; }
+		}
+
+		public float collisionAvoidanceBias = 0.15f;
+		public override float CollisionAvoidanceBias { get { return collisionAvoidanceBias; } }
+
+		public float neighborEvalBias = -0.15f;
+		public override float NeighborEvalBias { get { return neighborEvalBias; } }
+
+		public override void InitController()
+		{
+			AnimController.HeightScale = 1.75f;
+		}
+
+		public override CourseDeviationInfo EvaluateNeighbor(
+			AbstractFishController neighbor, CourseDeviationInfo collisionInfo)
+		{
+			CourseDeviationInfo neighborInfo = new CourseDeviationInfo();
+			if (neighbor is PreyController)
+			{
+				Vector3 neighborRelativePos = Transform.InverseTransformPoint(neighbor.Position);
+				if (neighborRelativePos.z >= 0.0f)
+				{
+					neighborInfo.weight = (1.0f - (Mathf.Clamp(
+					Vector3.Distance(Position, neighbor.Position), 0.0f, DetectionRadius) / DetectionRadius));
+				}
+				else
+				{
+					neighborInfo.weight = (1.0f - (Mathf.Clamp(
+					Vector3.Distance(Position, neighbor.Position), 0.0f, DetectionRadius / 2.0f) / DetectionRadius / 2.0f));
+				}
+				
+                neighborInfo.deviation = (neighborRelativePos.x == 0.0f ? 0.0f : Mathf.Sign(neighborRelativePos.x));
+				//Debug.Log(String.Format("Deviation={0}, Weight={1}", neighborInfo.deviation, neighborInfo.weight));
+			}
+			else
+			{
+				neighborInfo.deviation = collisionInfo.deviation;
+				neighborInfo.weight = 0.0f;
+			}
+			return neighborInfo;
 		}
 
 		public override void UpdateState()
 		{
-			Debug.Log("Neighbors: " + neighbors.Count);
+			if (SprintEnergy == MaxSprintEnergy && (int)(UnityEngine.Random.value * 100.0f / 2.0f) == 0)
+			{
+				SprintEnabled = true;
+			}
 		}
 	}
 }

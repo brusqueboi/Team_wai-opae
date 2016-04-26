@@ -12,7 +12,7 @@ public abstract class AbstractFishController : MonoBehaviour {
 	public const float DIRECTION_LEFT_REAR = -135.0f;
 	public const float DIRECTION_RIGHT_REAR = 135.0f;
 
-	public const float RAYCAST_REDRAW_DELAY = 0.25f;
+	public const float RAYCAST_REDRAW_DELAY = 3.0f;
 	private float lastFrontRaycastRedraw = 0.0f;
 	private float lastRearRaycastRedraw = 0.0f;
 
@@ -32,17 +32,23 @@ public abstract class AbstractFishController : MonoBehaviour {
 	public abstract float TurnRate { get; protected set; }
 	public abstract float NormalTurnRate { get; }
 	public abstract float SprintTurnRate { get; }
+	public abstract float NormalDetectionRadius { get; }
+	public abstract float DetectionRadius { get; protected set; }
+	public abstract float CollisionAvoidanceBias { get; }
+	public abstract float NeighborEvalBias { get; }
 
 	public FishAnimationController AnimController { get; private set; }
 
-	protected float maxRotation;
+	protected ProjectileController hitProjectile = null;
+	protected float hitDespawnDelay = 3.0f;
+	protected float hitTime = 0.0f;
 
-	protected SphereCollider _collider;
-	public SphereCollider Collider
+	protected SphereCollider detectionTrigger;
+	public SphereCollider DetectionTrigger
 	{
-		get { return _collider; }
+		get { return detectionTrigger; }
 
-		private set { _collider = value; }
+		private set { detectionTrigger = value; }
 	}
 	public Transform Transform
 	{
@@ -65,6 +71,9 @@ public abstract class AbstractFishController : MonoBehaviour {
 	}
 
 	protected LinkedList<AbstractFishController> neighbors = new LinkedList<AbstractFishController>();
+	private const float BaseBiasIntensity = 0.95f;
+
+	public abstract void InitController();
 
 	public void BeforeUpdate()
 	{
@@ -75,9 +84,10 @@ public abstract class AbstractFishController : MonoBehaviour {
 
 	public void UpdateRotation()
 	{
-		float direction = GetCollisionAvoidanceDir();
-		direction = Mathf.Clamp(UpdateDirection(direction), -maxRotation, maxRotation);
-		Transform.Rotate(new Vector3(0.0f, direction, 0.0f));
+		CourseDeviationInfo collisionInfo = GetCollisionAvoidanceInfo();
+		float updatedDirection = Mathf.Clamp(UpdateDirection(collisionInfo), -1.0f, 1.0f);
+		float maxRotationDelta = (SprintEnabled ? SprintTurnRate : NormalTurnRate) * Time.deltaTime;
+		Transform.Rotate(new Vector3(0.0f, maxRotationDelta * updatedDirection, 0.0f));
 	}
 
 	public void UpdatePosition()
@@ -106,10 +116,78 @@ public abstract class AbstractFishController : MonoBehaviour {
 		// Do nothing.
 	}
 
-	public abstract float UpdateDirection(float collisionAvoidanceDir);
-
-	protected float GetCollisionAvoidanceDir()
+	public float UpdateDirection(CourseDeviationInfo collisionInfo)
 	{
+		if(neighbors.Count == 0)
+		{
+			return collisionInfo.deviation;
+		}
+
+		float weightedAvgNum = 0.0f;
+		float weightedAvgDenom = 0.0f;
+		foreach(AbstractFishController neighborController in neighbors)
+		{
+			CourseDeviationInfo neighborInfo = EvaluateNeighbor(neighborController, collisionInfo);
+			neighborInfo.weight = ApplyWeightBias(neighborInfo.weight, NeighborEvalBias);
+			// Interpolates between neighbor deviation and collision avoidance deviation based on 
+			// collision avoidance weight.
+			neighborInfo.deviation = (neighborInfo.weight * neighborInfo.deviation) 
+				+ ((1.0f - neighborInfo.weight) * ((collisionInfo.deviation * collisionInfo.weight) 
+				+ ((1.0f - collisionInfo.weight) * neighborInfo.deviation)));
+			weightedAvgNum += neighborInfo.weight * neighborInfo.deviation;
+			weightedAvgDenom += neighborInfo.weight;
+		}
+		if (weightedAvgDenom == 0.0f)
+		{
+			return collisionInfo.deviation;
+		}
+		else
+		{
+			// Add in collision deviation and weight.
+			weightedAvgNum += (collisionInfo.weight * weightedAvgDenom) * collisionInfo.deviation;
+			weightedAvgDenom += collisionInfo.weight * weightedAvgDenom;
+			// Interpolate between collision and ai deviations according to collision avoidance weight.
+			float avgCourseDeviation = Mathf.Clamp(weightedAvgNum / weightedAvgDenom, -1.0f, 1.0f);
+			float courseDeviation = (collisionInfo.deviation * collisionInfo.weight)
+				+ (avgCourseDeviation * (1.0f - collisionInfo.weight));
+			return Mathf.Clamp(avgCourseDeviation, -1.0f, 1.0f);
+		}
+	}
+
+	public abstract CourseDeviationInfo EvaluateNeighbor(
+		AbstractFishController neighbor, CourseDeviationInfo collisionAvoidanceInfo);
+
+	public void Hit(ProjectileController projectile)
+	{
+		hitProjectile = projectile;
+		hitTime = Time.time;
+		Velocity = 0.0f;
+	}
+
+	protected float ApplyWeightBias(float percentValue, float biasIntensity)
+	{
+		float bias = 0.0f;
+		if (Mathf.Abs(percentValue) > 1.0f)
+		{
+			bias = Mathf.Sign(percentValue) * 1.0f;
+		}
+		else
+		{   // Emphasizes highly-weighted values and suppresses low-weighted values.
+			// Allows stronger response to more important course deviations.
+			float biasCeiling = (BaseBiasIntensity * (1.0f / (1.0f + biasIntensity))) * Mathf.PI;
+			bias = Mathf.Clamp(Arctanh(percentValue), -biasCeiling, biasCeiling) / biasCeiling;
+		}
+		return bias;
+	}
+
+	protected float Arctanh(float value)
+	{	
+		return (Mathf.Log(1.0f + value) - Mathf.Log(1.0f - value)) / 2.0f;
+	}
+
+	protected CourseDeviationInfo GetCollisionAvoidanceInfo()
+	{
+		CourseDeviationInfo collisionInfo = new CourseDeviationInfo();
 		// Cast a ray forward, left, and right.
 		bool drawRaycast = Time.time - lastFrontRaycastRedraw > RAYCAST_REDRAW_DELAY;
 		if(drawRaycast)
@@ -123,13 +201,14 @@ public abstract class AbstractFishController : MonoBehaviour {
 		// Choose collision avoidance direction.
 		if (forwardDist == leftDist && leftDist == rightDist)
 		{	// No obstacles ahead.
-			return DIRECTION_FORWARD;
+			collisionInfo.deviation = DIRECTION_FORWARD;
+			collisionInfo.weight = 0.0f;
 		}
 		else if (forwardDist <= leftDist && forwardDist <= rightDist)
 		{   // Obstacle straight ahead.
-			float distancePercent = (CollisionAvoidanceDist - forwardDist) / CollisionAvoidanceDist;
-			float rotation = (leftDist > rightDist ? -maxRotation : maxRotation) * distancePercent;
-			return rotation;
+			collisionInfo.weight = (CollisionAvoidanceDist - forwardDist) / CollisionAvoidanceDist;
+			collisionInfo.deviation = 
+				(leftDist > rightDist ? -1.0f : 1.0f) * collisionInfo.weight;
 		}
 		else if (forwardDist >= leftDist && forwardDist >= rightDist)
 		{   // Obstacles on both left and right.
@@ -140,41 +219,42 @@ public abstract class AbstractFishController : MonoBehaviour {
 			}
 			float leftRearDist = GetRaycastDistance(DIRECTION_LEFT_REAR, CollisionAvoidanceDist, drawRearRaycast);
 			float rightRearDist = GetRaycastDistance(DIRECTION_RIGHT_REAR, CollisionAvoidanceDist, drawRearRaycast);
-			float distancePercent = 
+			collisionInfo.weight = 
 				(CollisionAvoidanceDist - Mathf.Min(leftDist, rightDist)) / CollisionAvoidanceDist;
-			return (leftRearDist > rightRearDist ? -maxRotation : maxRotation) * distancePercent;
+			collisionInfo.deviation = 
+				(leftRearDist > rightRearDist ? -1.0f : 1.0f) * collisionInfo.weight;
 		} else if (rightDist <= forwardDist && rightDist <= leftDist)
 		{   // Obstacle on the right.
-			float distancePercent = (CollisionAvoidanceDist - rightDist) / CollisionAvoidanceDist;
-			float rotation = maxRotation * distancePercent;
-			rotation = -rotation; // Negate to turn left.
-			return rotation;
+			collisionInfo.weight = (CollisionAvoidanceDist - rightDist) / CollisionAvoidanceDist;
+			collisionInfo.deviation = -(1.0f * collisionInfo.weight); // Negate to turn left.
 		} else if (leftDist <= forwardDist && leftDist <= rightDist) 
 		{   // Obstacle on the left.
-			float distancePercent = (CollisionAvoidanceDist - leftDist) / CollisionAvoidanceDist;
-			float rotation = maxRotation * distancePercent;
-			return rotation;
+			collisionInfo.weight = (CollisionAvoidanceDist - leftDist) / CollisionAvoidanceDist;
+			collisionInfo.deviation = 1.0f * collisionInfo.weight;
 		} else
 		{
 			throw new System.Exception(string.Format("Unhandled distance value set [L,C,R]: [{0},{1},{2}]", 
 				leftDist, forwardDist, rightDist));
 		}
+		//collisionInfo.weight = ApplyWeightBias(collisionInfo.weight, CollisionAvoidanceBias);
+		collisionInfo.weight = Mathf.Clamp(collisionInfo.weight * (1.0f + CollisionAvoidanceBias), -1.0f, 1.0f);
+		return collisionInfo;
 	}
 
 	protected float GetRaycastDistance(float direction, float maxDistance, bool debugDrawRay)
 	{
 		Vector3 directionVector = DirectionToVector(direction);
 		maxDistance *= Velocity / NormalVelocity;
-		if(debugDrawRay)
+		RaycastHit raycastHit;
+		Physics.Raycast(Position, directionVector, out raycastHit, maxDistance);
+		float distance = (raycastHit.distance > 0 ? raycastHit.distance : maxDistance);
+		if (debugDrawRay && distance != maxDistance)
 		{
 			Debug.DrawRay(Position, Vector3.Scale(Vector3.Normalize(directionVector),
 			new Vector3(maxDistance, maxDistance, maxDistance)),
-			Color.green, Time.deltaTime * 2.0f, true);
+			Color.Lerp(Color.green, Color.red, distance / maxDistance), Time.deltaTime * 2.0f, true);
 		}
-		RaycastHit raycastHit;
-		Physics.Raycast(Position, directionVector, out raycastHit, maxDistance);
-		return (raycastHit.distance > 0 ? 
-			raycastHit.distance : maxDistance );
+		return distance;
 	}
 
 	protected Vector3 DirectionToVector(float direction)
@@ -189,19 +269,36 @@ public abstract class AbstractFishController : MonoBehaviour {
 
 	private void UpdateInternalState()
 	{
-        maxRotation = (SprintEnabled ? SprintTurnRate : NormalTurnRate) * Time.deltaTime;
 		// Update sprintEnabled.
 		SprintEnergy = Mathf.Clamp(
 			(SprintEnergy + (SprintEnabled ? -1.0f : 1.0f) * Time.deltaTime),
 			0.0f, MaxSprintEnergy);
 		SprintEnabled = (SprintEnergy > 0.0f ? SprintEnabled : false);
 		TurnRate = (SprintEnabled ? SprintTurnRate : NormalTurnRate);
+		DetectionTrigger.radius = NormalDetectionRadius * (Velocity / NormalVelocity);
+		if(hitProjectile != null)
+		{
+			if(Time.time - hitTime > hitDespawnDelay)
+			{
+				GameObject.Destroy(FishObject);
+				GameObject.Destroy(hitProjectile);
+				hitProjectile = null;
+			}
+			else
+			{
+				hitProjectile.transform.position = Position;
+				hitProjectile.transform.rotation = Rotation;
+			}
+		}
 	}
 
 	// Use this for initialization
 	void Start () {
 		FishObject = this.gameObject;
 		AnimController = FishObject.GetComponent<FishAnimationController>();
+		DetectionTrigger = FishObject.GetComponent<SphereCollider>();
+		DetectionTrigger.radius = NormalDetectionRadius;
+		InitController();
 	}
 	
 	// Update is called once per frame
@@ -230,5 +327,11 @@ public abstract class AbstractFishController : MonoBehaviour {
 		{
 			neighbors.Remove(controller);
 		}
+	}
+
+	public struct CourseDeviationInfo
+	{
+		public float deviation;
+		public float weight;
 	}
 }

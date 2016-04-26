@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class ControllerModel {
 
@@ -16,6 +17,13 @@ public class ControllerModel {
 	// Button model.
 	public ButtonUIDs Ids { get; protected set; }
 
+	protected float buttonRepeatDelay = 0.5f;
+	public float ButtonRepeatDelay
+	{
+		get { return buttonRepeatDelay; }
+		set { buttonRepeatDelay = value; }
+	}
+
 	// Controller buttons.
 	public Vector2 LeftAnalog { get	{ return GetAnalog(Ids.leftAnalogX, Ids.leftAnalogY); }}
 	public Vector2 RightAnalog { get { return GetAnalog(Ids.rightAnalogX, Ids.rightAnalogY); }}
@@ -30,6 +38,8 @@ public class ControllerModel {
 	public bool StartButton { get { return GetButtonDown(Ids.startBtn); }}
 	public bool BackButton { get { return GetButtonDown(Ids.backBtn); }}
 
+	protected Dictionary<string, float> repeatDelays = new Dictionary<string, float>();
+
 	public ControllerModel(ButtonUIDs controllerIds)
 	{
 		Ids = controllerIds;
@@ -42,7 +52,7 @@ public class ControllerModel {
 
 	protected bool GetButtonDown(string buttonId)
 	{
-		return Input.GetButtonDown(buttonId);
+		return ApplyRepeatDelay(Input.GetButtonDown(buttonId), buttonId);
 	}
 
 	protected float GetAxis(string axisId)
@@ -53,6 +63,29 @@ public class ControllerModel {
 	protected Vector2 GetAnalog(string xAxisId, string yAxisId)
 	{
 		return new Vector2(GetAxis(xAxisId), GetAxis(yAxisId));
+	}
+
+	protected bool ApplyRepeatDelay(bool originalButtonState, string buttonId)
+	{
+		if(!originalButtonState)
+		{	// If button is not down, no repeat delay to apply.
+			return originalButtonState;
+		}
+		else if (repeatDelays.ContainsKey(buttonId))
+		{	// If button has been pressed before, look up the time in the dictionary. 
+			float lastPressTime = repeatDelays[buttonId];
+			originalButtonState = Time.time - lastPressTime > ButtonRepeatDelay;
+			if(originalButtonState)
+			{	// If the repeat delay has elapsed, update the last press time and return true.
+				repeatDelays.Remove(buttonId);
+				repeatDelays.Add(buttonId, Time.time);
+			}
+		}
+		else
+		{	// If key has not been added, add it.
+			repeatDelays.Add(buttonId, Time.time);
+		}
+		return originalButtonState;
 	}
 
 	public struct ButtonUIDs

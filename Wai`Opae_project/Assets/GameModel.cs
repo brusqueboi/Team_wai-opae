@@ -7,16 +7,12 @@ using UnityEngine.UI;
 
 public class GameModel
 {
-	// Event Delegates
-	public delegate void PreyConsumedEventHandler(object sender, PreyConsumedEventArgs args);
-	public delegate void RoiCaughtEventHandler(object sender, PreyConsumedEventArgs args);
-
 	// Events
 	public event EventHandler GameSuspendedChanged;
 	public event EventHandler LevelChanged;
 	public event EventHandler EndgameDetected;
-	public event PreyConsumedEventHandler PreyConsumed;
-	public event RoiCaughtEventHandler RoiCaught;
+	public event EventHandler<PreyConsumedEventArgs> PreyConsumed;
+	public event EventHandler<RoiCaughtEventArgs> RoiCaught;
 
 	public static readonly int MinLevel = 1;
 	public static readonly int MaxLevel = Int32.MaxValue;

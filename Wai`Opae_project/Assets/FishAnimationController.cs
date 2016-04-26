@@ -10,7 +10,7 @@ public class FishAnimationController : MonoBehaviour {
 		set { baseSpeed = value; }
 	}
 
-	protected float speedScale = 1.0f;
+	public float speedScale = 1.0f;
 	public float SpeedScale
 	{
 		get { return speedScale; }
@@ -24,24 +24,23 @@ public class FishAnimationController : MonoBehaviour {
 		set { baseHeight = value; }
 	}
 
-	protected float heightScale = 1.0f;
+	public float heightScale = 1.0f;
 	public float HeightScale
 	{
 		get { return heightScale; }
 		set { heightScale = value; }
 	}
 
-	protected float wavelengthScale = 1.0f;
+	public float wavelengthScale = 1.0f;
 	public float WavelengthScale
 	{
 		get { return wavelengthScale; }
 		set { wavelengthScale = value; }
 	}
 
-	private float[] vertOffsets;
 	private MeshFilter frontSprite;
 	private MeshFilter backSprite;
-	private MeshFilter centerSprite;
+	private Vector3[] centerVertices;
 	private float minZ;
 	private float maxZ;
 	float lateralLength;
@@ -52,22 +51,20 @@ public class FishAnimationController : MonoBehaviour {
 		BaseSpeed = 9.75f;
 		randomOffset = Mathf.PI * Random.value;
 		frontSprite = GameObject.Find(gameObject.name + "/Fish_Sprite_Front").GetComponent<MeshFilter>();
-		centerSprite = GameObject.Find(gameObject.name + "/Fish_Sprite_Center").GetComponent<MeshFilter>();
 		backSprite = GameObject.Find(gameObject.name + "/Fish_Sprite_Back").GetComponent<MeshFilter>();
-		Vector3[] centerVerts = centerSprite.mesh.vertices;
-		vertOffsets = new float[centerVerts.Length];
 		// Establish min and max local z.
+		centerVertices = frontSprite.mesh.vertices;
 		minZ = float.MaxValue;
 		maxZ = float.MinValue;
-		for(int i = 0; i < centerVerts.Length; i++)
+		for(int i = 0; i < centerVertices.Length; i++)
 		{
-			if(centerVerts[i].y < minZ)
+			if(centerVertices[i].y < minZ)
 			{
-				minZ = centerVerts[i].y;
+				minZ = centerVertices[i].y;
 			}
-			if (centerVerts[i].y > maxZ)
+			if (centerVertices[i].y > maxZ)
 			{
-				maxZ = centerVerts[i].y;
+				maxZ = centerVertices[i].y;
 			}
 		}
 		lateralLength = maxZ - minZ;
@@ -76,15 +73,22 @@ public class FishAnimationController : MonoBehaviour {
 	// Update is called once per frame
 	void Update ()
 	{
-		Vector3[] centerVertices = centerSprite.mesh.vertices;
-		
-		for (int i = 0; i < vertOffsets.Length; i++)
+		Vector3[] frontVertices = frontSprite.mesh.vertices;
+		Vector3[] backVertices = backSprite.mesh.vertices;
+		if(frontVertices.Length != backVertices.Length)
 		{
-			float offset = GetVertexOffset(GetLateralPositionPercent(centerVertices[i]));
-			centerVertices[i] = OffsetVertex(centerVertices[i], offset);
+			Debug.Log("Different Front and Back sprite meshes");
 		}
-		frontSprite.mesh.vertices = centerVertices;
-		backSprite.mesh.vertices = centerVertices;
+		for (int i = 0; i < frontVertices.Length; i++)
+		{
+			float frontOffset = GetVertexOffset(GetLateralPositionPercent(frontVertices[i]));
+			float backOffset = GetVertexOffset(GetLateralPositionPercent(backVertices[i]));
+			frontVertices[i] = OffsetVertex(
+				new Vector3(frontVertices[i].x, frontVertices[i].y, centerVertices[i].z), frontOffset);
+			backVertices[i] = OffsetVertex(new Vector3(backVertices[i].x, backVertices[i].y, centerVertices[i].z), frontOffset);
+		}
+		frontSprite.mesh.vertices = frontVertices;
+		backSprite.mesh.vertices = backVertices;
 	}
 
 	private float GetLateralPositionPercent(Vector3 vertexPosition)
