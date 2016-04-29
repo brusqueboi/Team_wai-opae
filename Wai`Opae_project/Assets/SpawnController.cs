@@ -19,8 +19,6 @@ public class SpawnController {
 
 	public event FishSpawnEventHandler OnFishSpawn;
 
-	public GameObject lookAtTarget;
-
 	public GameObject[] spawnLocations;
 
 	private static SpawnController controller = new SpawnController();
@@ -37,7 +35,7 @@ public class SpawnController {
 	{
 		if (spawnLocations != null && spawnLocations.Length > 0)
 		{
-			return spawnLocations[(int)((UnityEngine.Random.value * spawnLocations.Length) + 0.5f)].transform.position;
+			return spawnLocations[(int)(UnityEngine.Random.value * spawnLocations.Length)].transform.position;
 		}
 		else
 		{
@@ -45,11 +43,13 @@ public class SpawnController {
 		}
 	}
 
-	public void Spawn(GameObject obj)
+	public void Spawn(GameObject referenceObject)
 	{
+		GameObject obj = GameObject.Instantiate(referenceObject);
 		Vector3 spawnLocation = SelectSpawnLocation();
+		Vector3 lookAtTarget = new Vector3(0.0f, 1.87f, 0.0f);
 		obj.transform.position = spawnLocation;
-		obj.transform.LookAt(lookAtTarget.transform);
+		obj.transform.LookAt(lookAtTarget);
 		FireFishSpawned(obj);
 	}
 
@@ -61,11 +61,17 @@ public class SpawnController {
 	
 	// Update is called once per frame
 	public void Update () {
-	
+		
 	}
 
 	private void FireFishSpawned(GameObject spawnedObject)
 	{
 		OnFishSpawn.Invoke(this, new FishSpawnEventArgs(spawnedObject));
+	}
+
+	public struct LevelSpawnInfo
+	{
+		float minRoiCount;
+		float roiSpawnRate;
 	}
 }

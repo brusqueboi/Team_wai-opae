@@ -22,6 +22,7 @@ public abstract class AbstractFishController : MonoBehaviour {
 	public abstract Texture2D Bitmap { get; }
 	public abstract float CollisionAvoidanceDist { get; }
 
+	public abstract bool Alive { get; protected set; }
 	public abstract float Velocity { get; protected set; }
 	public abstract float SprintVelocity { get; }
 	public abstract float NormalVelocity { get; }
@@ -36,12 +37,9 @@ public abstract class AbstractFishController : MonoBehaviour {
 	public abstract float DetectionRadius { get; protected set; }
 	public abstract float CollisionAvoidanceBias { get; }
 	public abstract float NeighborEvalBias { get; }
+	public abstract float HitDespawnDelay { get; }
 
 	public FishAnimationController AnimController { get; private set; }
-
-	protected ProjectileController hitProjectile = null;
-	protected float hitDespawnDelay = 3.0f;
-	protected float hitTime = 0.0f;
 
 	protected SphereCollider detectionTrigger;
 	public SphereCollider DetectionTrigger
@@ -70,8 +68,7 @@ public abstract class AbstractFishController : MonoBehaviour {
 		set	{ FishObject.transform.localScale = value; }
 	}
 
-	protected LinkedList<AbstractFishController> neighbors = new LinkedList<AbstractFishController>();
-	private const float BaseBiasIntensity = 0.95f;
+	protected NeighborCollectionController neighborCollector;
 
 	public abstract void InitController();
 
@@ -118,17 +115,23 @@ public abstract class AbstractFishController : MonoBehaviour {
 
 	public float UpdateDirection(CourseDeviationInfo collisionInfo)
 	{
-		if(neighbors.Count == 0)
+		if(neighborCollector.Neighbors.Count == 0)
 		{
 			return collisionInfo.deviation;
 		}
 
 		float weightedAvgNum = 0.0f;
 		float weightedAvgDenom = 0.0f;
-		foreach(AbstractFishController neighborController in neighbors)
+		List<AbstractFishController> deadNeighbors = new List<AbstractFishController>();
+		foreach(AbstractFishController neighborController in neighborCollector.Neighbors)
 		{
+			if(!neighborController.Alive)
+			{
+				deadNeighbors.Add(neighborController);
+				continue;
+			}
 			CourseDeviationInfo neighborInfo = EvaluateNeighbor(neighborController, collisionInfo);
-			neighborInfo.weight = ApplyWeightBias(neighborInfo.weight, NeighborEvalBias);
+			neighborInfo.weight = Utils.ArctanFilterValue(neighborInfo.weight, NeighborEvalBias);
 			// Interpolates between neighbor deviation and collision avoidance deviation based on 
 			// collision avoidance weight.
 			neighborInfo.deviation = (neighborInfo.weight * neighborInfo.deviation) 
@@ -137,6 +140,10 @@ public abstract class AbstractFishController : MonoBehaviour {
 			weightedAvgNum += neighborInfo.weight * neighborInfo.deviation;
 			weightedAvgDenom += neighborInfo.weight;
 		}
+		foreach(AbstractFishController deadNeighbor in deadNeighbors)
+		{
+			neighborCollector.Neighbors.Remove(deadNeighbor);
+        }
 		if (weightedAvgDenom == 0.0f)
 		{
 			return collisionInfo.deviation;
@@ -159,30 +166,20 @@ public abstract class AbstractFishController : MonoBehaviour {
 
 	public void Hit(ProjectileController projectile)
 	{
-		hitProjectile = projectile;
-		hitTime = Time.time;
-		Velocity = 0.0f;
-	}
-
-	protected float ApplyWeightBias(float percentValue, float biasIntensity)
-	{
-		float bias = 0.0f;
-		if (Mathf.Abs(percentValue) > 1.0f)
+		if(!Alive)
 		{
-			bias = Mathf.Sign(percentValue) * 1.0f;
+			return;
 		}
-		else
-		{   // Emphasizes highly-weighted values and suppresses low-weighted values.
-			// Allows stronger response to more important course deviations.
-			float biasCeiling = (BaseBiasIntensity * (1.0f / (1.0f + biasIntensity))) * Mathf.PI;
-			bias = Mathf.Clamp(Arctanh(percentValue), -biasCeiling, biasCeiling) / biasCeiling;
-		}
-		return bias;
-	}
+		Alive = false;
 
-	protected float Arctanh(float value)
-	{	
-		return (Mathf.Log(1.0f + value) - Mathf.Log(1.0f - value)) / 2.0f;
+		projectile.gameObject.transform.SetParent(Transform);
+		projectile.GetComponent<Rigidbody>().isKinematic = true;
+		GetComponent<Rigidbody>().isKinematic = false;
+		Velocity = 0.0f;
+		projectile.GetComponent<MeshRenderer>().shadowCastingMode =
+			UnityEngine.Rendering.ShadowCastingMode.Off;
+
+		StartCoroutine(FishDeathAnimation(projectile, HitDespawnDelay));
 	}
 
 	protected CourseDeviationInfo GetCollisionAvoidanceInfo()
@@ -276,20 +273,6 @@ public abstract class AbstractFishController : MonoBehaviour {
 		SprintEnabled = (SprintEnergy > 0.0f ? SprintEnabled : false);
 		TurnRate = (SprintEnabled ? SprintTurnRate : NormalTurnRate);
 		DetectionTrigger.radius = NormalDetectionRadius * (Velocity / NormalVelocity);
-		if(hitProjectile != null)
-		{
-			if(Time.time - hitTime > hitDespawnDelay)
-			{
-				GameObject.Destroy(FishObject);
-				GameObject.Destroy(hitProjectile);
-				hitProjectile = null;
-			}
-			else
-			{
-				hitProjectile.transform.position = Position;
-				hitProjectile.transform.rotation = Rotation;
-			}
-		}
 	}
 
 	// Use this for initialization
@@ -297,12 +280,17 @@ public abstract class AbstractFishController : MonoBehaviour {
 		FishObject = this.gameObject;
 		AnimController = FishObject.GetComponent<FishAnimationController>();
 		DetectionTrigger = FishObject.GetComponent<SphereCollider>();
+		neighborCollector = FishObject.GetComponent<NeighborCollectionController>();
 		DetectionTrigger.radius = NormalDetectionRadius;
 		InitController();
 	}
 	
 	// Update is called once per frame
 	void Update () {
+		if(!Alive)
+		{
+			return;
+		}
 		BeforeUpdate();
 		UpdateInternalState();
 		UpdateState();
@@ -311,27 +299,37 @@ public abstract class AbstractFishController : MonoBehaviour {
 		AfterUpdate();
 	}
 
-	void OnTriggerEnter(Collider collisionInfo)
-	{
-		AbstractFishController controller = Utils.GetAbstractFishController(collisionInfo.gameObject);
-		if (controller != null && !neighbors.Contains(controller))
-		{
-			neighbors.AddLast(controller);
-		}
-	}
-
-	void OnTriggerExit(Collider collisionInfo)
-	{
-		AbstractFishController controller = Utils.GetAbstractFishController(collisionInfo.gameObject);
-		if (controller != null)
-		{
-			neighbors.Remove(controller);
-		}
-	}
-
 	public struct CourseDeviationInfo
 	{
 		public float deviation;
 		public float weight;
+	}
+
+	private IEnumerator FishDeathAnimation(ProjectileController hitProjectile, float duration)
+	{
+		float hitTime = Time.time;
+		float minAnimSpeed = 0.08f;
+		float startingAnimSpeed;
+
+		// Thrash about a bit.
+		AnimController.SpeedScale *= 2.5f;
+		startingAnimSpeed = AnimController.SpeedScale;
+		AnimController.HeightScale *= 1.5f;
+		float startingDepth = Position.y;
+		// Slow down to almost nothing.
+		while (Time.time - hitTime < duration)
+		{
+			AnimController.SpeedScale = 
+				Mathf.Lerp(startingAnimSpeed, minAnimSpeed, (Time.time - hitTime) / duration);
+			Position = new Vector3(Position.x, Mathf.Lerp(startingDepth, 5.0f, (Time.time - hitTime) / duration), Position.y);
+			yield return new WaitForFixedUpdate();
+		}
+		// Destroy the objects.
+		if (hitProjectile != null)
+		{
+			GameObject.Destroy(hitProjectile.gameObject);
+		}
+		GameObject.Destroy(this.gameObject);
+		
 	}
 }

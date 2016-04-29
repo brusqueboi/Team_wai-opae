@@ -28,6 +28,10 @@ ModelImporter:
     100040: 1x2_collision_mesh_CLIP_02
     100042: 1x2_collision_mesh_CLIP_03
     100044: 1x2_collision_mesh_CLIP_04
+    100046: bg_detail_mesh
+    100048: ground_detail_plane_MeshPart0
+    100050: ground_detail_plane_MeshPart1
+    100052: bg_detail_mesh_near
     400000: //RootNode
     400002: collision_mesh
     400004: ground_detail_plane
@@ -51,6 +55,10 @@ ModelImporter:
     400040: 1x2_collision_mesh_CLIP_02
     400042: 1x2_collision_mesh_CLIP_03
     400044: 1x2_collision_mesh_CLIP_04
+    400046: bg_detail_mesh
+    400048: ground_detail_plane_MeshPart0
+    400050: ground_detail_plane_MeshPart1
+    400052: bg_detail_mesh_near
     2300000: //RootNode
     2300002: collision_mesh
     2300004: ground_detail_plane
@@ -66,6 +74,10 @@ ModelImporter:
     2300024: 1x2_collision_mesh_CLIP_02
     2300026: 1x2_collision_mesh_CLIP_03
     2300028: 1x2_collision_mesh_CLIP_04
+    2300030: bg_detail_mesh
+    2300032: ground_detail_plane_MeshPart0
+    2300034: ground_detail_plane_MeshPart1
+    2300036: bg_detail_mesh_near
     3300000: //RootNode
     3300002: collision_mesh
     3300004: ground_detail_plane
@@ -81,6 +93,10 @@ ModelImporter:
     3300024: 1x2_collision_mesh_CLIP_02
     3300026: 1x2_collision_mesh_CLIP_03
     3300028: 1x2_collision_mesh_CLIP_04
+    3300030: bg_detail_mesh
+    3300032: ground_detail_plane_MeshPart0
+    3300034: ground_detail_plane_MeshPart1
+    3300036: bg_detail_mesh_near
     4300000: Box001
     4300002: collision_mesh
     4300004: ground_plane
@@ -96,6 +112,10 @@ ModelImporter:
     4300024: 1x2_collision_mesh_CLIP_02
     4300026: 1x2_collision_mesh_CLIP_03
     4300028: 1x2_collision_mesh_CLIP_04
+    4300030: ground_detail_plane_MeshPart0
+    4300032: ground_detail_plane_MeshPart1
+    4300034: bg_detail_mesh
+    4300036: bg_detail_mesh_near
     9500000: //RootNode
   materials:
     importMaterials: 1

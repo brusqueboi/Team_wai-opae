@@ -81,6 +81,7 @@
     <Compile Include="Assets\GameController.cs" />
     <Compile Include="Assets\GameModel.cs" />
     <Compile Include="Assets\LauncherController.cs" />
+    <Compile Include="Assets\NeighborCollectionController.cs" />
     <Compile Include="Assets\ObjectRespawnTrigger.cs" />
     <Compile Include="Assets\PlayerModel.cs" />
     <Compile Include="Assets\PreyController.cs" />

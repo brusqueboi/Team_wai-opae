@@ -18,6 +18,13 @@ namespace Assets
 		public string commonName = "";
 		public override string CommonName { get { return commonName; } }
 
+		public bool alive = true;
+		public override bool Alive
+		{
+			get { return alive; }
+			protected set { alive = value; }
+		}
+
 		public float maxCollisionAvoidanceDistance = 7.0f;
 		public override float CollisionAvoidanceDist { get { return maxCollisionAvoidanceDistance; } }
 
@@ -82,6 +89,9 @@ namespace Assets
 
 		public float neighborEvalBias = 0.5f;
 		public override float NeighborEvalBias { get { return neighborEvalBias; } }
+
+		public float hitDespawnDelay = 6.0f;
+		public override float HitDespawnDelay { get { return hitDespawnDelay; } }
 
 		public override void InitController()
 		{

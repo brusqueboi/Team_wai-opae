@@ -8,6 +8,29 @@ namespace Assets
 {
 	class Utils
 	{
+		private const float BaseBiasIntensity = 0.95f;
+
+		public static float Arctanh(float value)
+		{
+			return (Mathf.Log(1.0f + value) - Mathf.Log(1.0f - value)) / 2.0f;
+		}
+
+		public static float ArctanFilterValue(float percentValue, float biasIntensity)
+		{
+			float bias = 0.0f;
+			if (Mathf.Abs(percentValue) > 1.0f)
+			{
+				bias = Mathf.Sign(percentValue) * 1.0f;
+			}
+			else
+			{   // Emphasizes highly-weighted values and suppresses low-weighted values.
+				// Allows stronger response to more important course deviations.
+				float biasCeiling = (BaseBiasIntensity * (1.0f / (1.0f + biasIntensity))) * Mathf.PI;
+				bias = Mathf.Clamp(Arctanh(percentValue), -biasCeiling, biasCeiling) / biasCeiling;
+			}
+			return bias;
+		}
+
 
 		public static T RequireNonNull<T>(T obj)
 		{

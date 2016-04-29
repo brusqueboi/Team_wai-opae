@@ -13,7 +13,7 @@ public class LauncherController : MonoBehaviour {
 	// Control
 	public GameObject projectile;
 	public Transform target;
-	public Vector3 cameraOffset;
+	public float yPosition = 1.87f;
     public AudioClip shoot;
     public AudioClip splash;
 	public float interstitialDelay = 1.0f;
@@ -28,8 +28,8 @@ public class LauncherController : MonoBehaviour {
 	public int playerId = 1;
 	public float multiplayerSpreadDist = 2.0f;
 
-	private Vector3 originalCameraPosition;
 	private float reloadStartTime;
+	private Vector3 centerPosition;
 
 	protected bool visible = true;
 	public bool Visible
@@ -52,7 +52,8 @@ public class LauncherController : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		originalCameraPosition = GameObject.Find("Main Camera").transform.position;
+		centerPosition = GameObject.Find("Main Camera").transform.position;
+		centerPosition.y = yPosition;
 		loadedProjectile = LoadProjectile();
         gameObject.AddComponent<AudioSource>();
         source.playOnAwake = false;
@@ -107,8 +108,8 @@ public class LauncherController : MonoBehaviour {
 			thisEnabledPlayersIdx += 1;
 			enabledPlayers += (enabledPlayers > 3 ? 0 : 1);
 			float positionPercent = (float)thisEnabledPlayersIdx / (float)enabledPlayers;
-			
-			Vector3 updatedPos = originalCameraPosition + cameraOffset;
+
+			Vector3 updatedPos = centerPosition;
 			updatedPos.x -= multiplayerSpreadDist / 2.0f;
 			updatedPos.x += multiplayerSpreadDist * (positionPercent);
 			gameObject.transform.position = updatedPos;
@@ -147,7 +148,7 @@ public class LauncherController : MonoBehaviour {
 		yield return new WaitForSeconds(reloadDelay - reloadDuration);
 		loadedProjectile = LoadProjectile();
 		ProjectileController controller = loadedProjectile.GetComponent<ProjectileController>();
-		controller.CollisionHit += (sender, args) => FireProjectileHit(controller);
+		controller.CollisionHit += (sender, args) => FireProjectileHit(controller, args.Target);
 		controller.CollisionMiss += (sender, args) => FireProjectileMiss(controller);
 		FireProjectileLoaded(controller);
 	}
@@ -156,7 +157,7 @@ public class LauncherController : MonoBehaviour {
 	{
 		if (ProjectileLoaded != null)
 		{
-			ProjectileLoaded.Invoke(this, new ProjectileEventArgs(projectile));
+			ProjectileLoaded.Invoke(this, new ProjectileEventArgs(projectile, null));
 		}
 	}
 
@@ -164,15 +165,15 @@ public class LauncherController : MonoBehaviour {
 	{
 		if (ProjectileLaunched != null)
 		{
-			ProjectileLaunched.Invoke(this, new ProjectileEventArgs(projectile));
+			ProjectileLaunched.Invoke(this, new ProjectileEventArgs(projectile, null));
 		}
 	}
 
-	private void FireProjectileHit(ProjectileController projectile)
+	private void FireProjectileHit(ProjectileController projectile, AbstractFishController target)
 	{
 		if (ProjectileHit != null)
 		{
-			ProjectileHit.Invoke(this, new ProjectileEventArgs(projectile));
+			ProjectileHit.Invoke(this, new ProjectileEventArgs(projectile, target));
 		}
 	}
 
@@ -180,7 +181,7 @@ public class LauncherController : MonoBehaviour {
 	{
 		if (ProjectileMiss != null)
 		{
-			ProjectileMiss.Invoke(this, new ProjectileEventArgs(projectile));
+			ProjectileMiss.Invoke(this, new ProjectileEventArgs(projectile, null));
 		}
 	}
 
@@ -188,10 +189,12 @@ public class LauncherController : MonoBehaviour {
 	public class ProjectileEventArgs : EventArgs
 	{
 		public ProjectileController Projectile { get; private set; }
+		public AbstractFishController Target { get; private set; }
 
-		public ProjectileEventArgs(ProjectileController projectile)
+		public ProjectileEventArgs(ProjectileController projectile, AbstractFishController target)
 		{
 			Projectile = projectile;
+			Target = target;
 		}
 	}
 }

@@ -8,6 +8,8 @@ namespace Assets
 {
 	public class RoiController : AbstractFishController
 	{
+		public event EventHandler<GameModel.PreyConsumedEventArgs> PreyConsumed;
+
 		public float acceleration = 10;
 		public override float Acceleration { get { return acceleration; } }
 
@@ -16,6 +18,13 @@ namespace Assets
 
 		public string commonName = "";
 		public override string CommonName { get { return commonName; } }
+
+		public bool alive = true;
+		public override bool Alive
+		{
+			get { return alive; }
+			protected set { alive = value; }
+		}
 
 		public float maxCollisionAvoidanceDistance = 7.0f;
 		public override float CollisionAvoidanceDist { get { return maxCollisionAvoidanceDistance; } }
@@ -82,6 +91,9 @@ namespace Assets
 		public float neighborEvalBias = -0.15f;
 		public override float NeighborEvalBias { get { return neighborEvalBias; } }
 
+		public float hitDespawnDelay = 8.0f;
+		public override float HitDespawnDelay { get { return hitDespawnDelay; } }
+
 		public override void InitController()
 		{
 			AnimController.HeightScale = 1.75f;
@@ -121,6 +133,14 @@ namespace Assets
 			if (SprintEnergy == MaxSprintEnergy && (int)(UnityEngine.Random.value * 100.0f / 2.0f) == 0)
 			{
 				SprintEnabled = true;
+			}
+		}
+
+		protected void FirePreyConsumed(PreyController consumed)
+		{
+			if(PreyConsumed != null)
+			{
+				PreyConsumed.Invoke(this, new GameModel.PreyConsumedEventArgs(consumed, this));
 			}
 		}
 	}

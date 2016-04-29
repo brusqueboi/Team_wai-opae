@@ -12,7 +12,7 @@ public class GameModel
 	public event EventHandler LevelChanged;
 	public event EventHandler EndgameDetected;
 	public event EventHandler<PreyConsumedEventArgs> PreyConsumed;
-	public event EventHandler<RoiCaughtEventArgs> RoiCaught;
+	public event EventHandler<FishCaughtEventArgs> FishCaught;
 
 	public static readonly int MinLevel = 1;
 	public static readonly int MaxLevel = Int32.MaxValue;
@@ -20,6 +20,7 @@ public class GameModel
 	protected List<OleloNoeau> oleloNoeau = new List<OleloNoeau>();
 	protected LinkedList<PreyController> preyPopulation = new LinkedList<PreyController>();
 	protected LinkedList<RoiController> roiPopulation = new LinkedList<RoiController>();
+	protected LinkedList<PreyController> consumedPrey = new LinkedList<PreyController>();
 
 	protected static GameModel model = new GameModel();
 	public static GameModel Model { get { return model; }}
@@ -103,28 +104,29 @@ public class GameModel
 		players[3] = PlayerModel.BuildPlayerModel(4);
 		for (int i = 0; i < players.Length; i++)
 		{
-			if (players[i] != null)
+			int playerId = i;
+			if (players[playerId] != null)
 			{
-				players[i].Start();
+				players[playerId].Start();
+				players[playerId].Launcher.ProjectileHit += (sender, args) =>
+				{
+					if (args.Target != null)
+					{
+						players[playerId].CaughtFish.Add(args.Target);
+						if(args.Target is PreyController)
+						{
+							preyPopulation.Remove(args.Target as PreyController);
+						}
+						else
+						{
+							roiPopulation.Remove(args.Target as RoiController);
+						}
+					}
+					FireFishCaught(players[playerId], args.Target);
+				};
 			}
 		}
 
-		GameController.Controller.FishSpawned += (sender, args) =>
-		{
-			AbstractFishController controller = args.SpawnedObject;
-			if (controller is RoiController)
-			{
-				roiPopulation.AddFirst((RoiController)controller);
-			}
-			else if (controller is PreyController)
-			{
-				preyPopulation.AddFirst((PreyController)controller);
-			}
-			else
-			{
-				Debug.Log("Unrecognized fish class spawned: " + controller);
-			}
-		};
 		remainingTime = GetMaxTime(level);
 		InitOleloNoeaus();
 		SpawnController.Controller.OnFishSpawn += (sender, args) =>
@@ -136,6 +138,11 @@ public class GameModel
 			else if (args.SpawnedObject is RoiController)
 			{
 				roiPopulation.AddLast((RoiController)args.SpawnedObject);
+				((RoiController)args.SpawnedObject).PreyConsumed += (consumedSender, consumedArgs) =>
+				{
+					consumedPrey.AddLast(consumedArgs.PreyObject);
+					FirePreyConsumed(consumedArgs.PreyObject, consumedArgs.RoiObject);
+				};
 			}
 			else
 			{
@@ -196,6 +203,22 @@ public class GameModel
 		return result;
 	}
 
+	protected void FirePreyConsumed(PreyController prey, RoiController roi)
+	{
+		if(PreyConsumed != null)
+		{
+			PreyConsumed.Invoke(this, new PreyConsumedEventArgs(prey, roi));
+		}
+	}
+
+	protected void FireFishCaught(PlayerModel player, AbstractFishController target)
+	{
+		if (FishCaught != null)
+		{
+			FishCaught.Invoke(this, new FishCaughtEventArgs(player, target));
+		}
+	}
+
 	public class PreyConsumedEventArgs : EventArgs
 	{
 		public PreyController PreyObject { get; private set; }
@@ -209,16 +232,16 @@ public class GameModel
 		}
 	}
 
-	public class RoiCaughtEventArgs : EventArgs
+	public class FishCaughtEventArgs : EventArgs
 	{
 		public PlayerModel Player { get; private set; }
 
-		public RoiController RoiObject { get; private set; }
+		public AbstractFishController Target { get; private set; }
 
-		public RoiCaughtEventArgs(PlayerModel player, RoiController roi)
+		public FishCaughtEventArgs(PlayerModel player, AbstractFishController target)
 		{
 			Player = Utils.RequireNonNull(player);
-			RoiObject = Utils.RequireNonNull(roi);
+			Target = target;
 		}
 	}
 

@@ -27,6 +27,9 @@ public class PlayerModel {
 	public CursorController Cursor { get; protected set; }
 	public LauncherController Launcher { get; protected set; }
 
+	protected List<AbstractFishController> caughtFish = new List<AbstractFishController>();
+	public List<AbstractFishController> CaughtFish { get { return caughtFish; } }
+
 	public PlayerModel(int playerIndex, ControllerModel controller, CursorController cursor, LauncherController launcher)
 	{
 		PlayerIndex = playerIndex;

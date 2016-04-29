@@ -24,6 +24,13 @@ public class ControllerModel {
 		set { buttonRepeatDelay = value; }
 	}
 
+	protected float deadZoneRadius = 0.0f;
+	public float DeadZoneRadius
+	{
+		get { return deadZoneRadius; }
+		set { deadZoneRadius = value; }
+	}
+
 	// Controller buttons.
 	public Vector2 LeftAnalog { get	{ return GetAnalog(Ids.leftAnalogX, Ids.leftAnalogY); }}
 	public Vector2 RightAnalog { get { return GetAnalog(Ids.rightAnalogX, Ids.rightAnalogY); }}

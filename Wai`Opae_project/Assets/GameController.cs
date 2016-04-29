@@ -35,6 +35,11 @@ public class GameController : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+		// Quit the application by pressing ESC key.
+		if (Input.GetKeyDown(KeyCode.Escape))
+		{
+			Application.Quit();
+		}
 		GameModel.Model.Update();
 		SpawnController.Controller.Update();
         audioController.Update();
