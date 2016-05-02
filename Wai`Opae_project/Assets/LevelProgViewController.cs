@@ -27,7 +27,6 @@ public class LevelProgViewController : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		gameObjRef = gameObject;
-		gameObject.SetActive(false);
 	}
 	
 	// Update is called once per frame

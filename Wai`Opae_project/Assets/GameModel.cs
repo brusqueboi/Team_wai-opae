@@ -263,7 +263,7 @@ public class GameModel
 
 	public void Update()
 	{
-		if (remainingTime >= 0.0f)
+		if (!GameSuspended && remainingTime >= 0.0f)
 		{
 			remainingTime = Mathf.Clamp((remainingTime - Time.deltaTime), 0.0f, GetMaxTime(Level));
 			if (remainingTime == 0.0f)
