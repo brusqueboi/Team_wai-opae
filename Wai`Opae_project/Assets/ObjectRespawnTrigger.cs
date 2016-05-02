@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using Assets;
 
 public class ObjectRespawnTrigger : MonoBehaviour {
 
@@ -14,10 +15,14 @@ public class ObjectRespawnTrigger : MonoBehaviour {
 	}
 
 
-	void OnCollisionEnter(Collision collisionInfo)
+	void OnTriggerEnter(Collider collisionInfo)
 	{
-		Debug.Log("Respawning: " + collisionInfo.gameObject.name);
-		SpawnController.Controller.Respawn(collisionInfo.gameObject);
+		AbstractFishController collisionFish = Utils.GetAbstractFishController(collisionInfo.gameObject);
+		if(collisionFish != null && collisionFish.Alive)
+		{
+			Debug.Log("Respawning: " + collisionInfo.gameObject.name);
+			SpawnController.Controller.Respawn(collisionInfo.gameObject);
+		}
 	}
 
 }

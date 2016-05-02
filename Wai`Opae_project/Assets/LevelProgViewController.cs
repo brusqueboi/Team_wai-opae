@@ -39,6 +39,7 @@ public class LevelProgViewController : MonoBehaviour {
 			if (GameModel.Model.RoiPopulationSize > 1)
 			{
 				GameModel.Model.Level = 0;
+				GameModel.Model.GameSuspended = true;
 				startView.SetActive(true);
 			}
 			else

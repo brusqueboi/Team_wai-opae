@@ -210,7 +210,6 @@ namespace Assets
 			bool alreadyAttacked = target.OnAttacked(this, AttackDuration);
 			if (!alreadyAttacked)
 			{
-				Selection.activeGameObject = target.gameObject;
 				lastAttackTime = Time.time;
 				updatesSuspended = true;
 				StartCoroutine(AttackAnimation(target));
@@ -227,7 +226,6 @@ namespace Assets
 
 		private IEnumerator AttackAnimation(PreyController target)
 		{
-			Selection.activeGameObject = target.gameObject;
 			float animStartTime = Time.time;
 			Vector3 startingPosition = Position;
 			float originalAnimSpeed = AnimController.SpeedScale;
