@@ -73,12 +73,12 @@ public class FishAnimationController : MonoBehaviour {
 	// Update is called once per frame
 	void Update ()
 	{
+		if(frontSprite == null || backSprite == null || GameModel.Model.AnimationSuspended)
+		{
+			return;
+		}
 		Vector3[] frontVertices = frontSprite.mesh.vertices;
 		Vector3[] backVertices = backSprite.mesh.vertices;
-		if(frontVertices.Length != backVertices.Length)
-		{
-			Debug.Log("Different Front and Back sprite meshes");
-		}
 		for (int i = 0; i < frontVertices.Length; i++)
 		{
 			float frontOffset = GetVertexOffset(GetLateralPositionPercent(frontVertices[i]));

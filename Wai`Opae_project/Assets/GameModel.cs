@@ -14,7 +14,7 @@ public class GameModel
 	public event EventHandler<PreyConsumedEventArgs> PreyConsumed;
 	public event EventHandler<FishCaughtEventArgs> FishCaught;
 
-	public static readonly int MinLevel = 1;
+	public static readonly int MinLevel = 0;
 	public static readonly int MaxLevel = Int32.MaxValue;
 
 	protected List<OleloNoeau> oleloNoeau = new List<OleloNoeau>();
@@ -22,19 +22,47 @@ public class GameModel
 	protected LinkedList<RoiController> roiPopulation = new LinkedList<RoiController>();
 	protected LinkedList<PreyController> consumedPrey = new LinkedList<PreyController>();
 
+
+	protected float baseLevelDuration = 20.0f;
+	public float BaseLevelDuration
+	{
+		get { return baseLevelDuration; }
+		set { baseLevelDuration = value; }
+	}
+
+	protected float marginalLevelDuration = 5.0f;
+	public float MarginalLevelDuration
+	{
+		get { return marginalLevelDuration; }
+		set { marginalLevelDuration = value; }
+	}
+
+	protected float maxLevelDuration = 45.0f;
+	public float MaxLevelDuration
+	{
+		get { return maxLevelDuration; }
+		set { maxLevelDuration = value; }
+	}
+
 	protected static GameModel model = new GameModel();
 	public static GameModel Model { get { return model; }}
 
 	protected PlayerModel[] players = new PlayerModel[4];
 	public PlayerModel[] Players { get { return (PlayerModel[]) players.Clone(); }}
 
-	protected float elapsedTime = 0.0f;
-	public float ElapsedTime { get { return elapsedTime; }}
+	public float ElapsedTime { get { return TotalTime - remainingTime; }}
 
 	protected float remainingTime = 0.0f;
 	public float RemainingTime { get { return remainingTime; } }
 
-	protected int level = 1;
+	protected float totalTime = 0.0f;
+	public float TotalTime
+	{
+		get { return totalTime; }
+		set { totalTime = Mathf.Clamp(value, 0.0f, GetMaxTime(Level)); }
+	}
+
+	protected int level = 0;
 	public int Level
 	{
 		get { return level; }
@@ -46,10 +74,17 @@ public class GameModel
 				{
 					Debug.Log("refused out of range level set: " + value);
 				}
-				else
+				else if(level != value)
 				{
 					level = value;
-					LevelChanged.Invoke(this, new EventArgs());
+					ResetFishPopulations();
+					GameSuspended = false;
+					totalTime = GetMaxTime(level);
+					remainingTime = totalTime;
+					if(LevelChanged != null)
+					{
+						LevelChanged.Invoke(this, new EventArgs());
+					}
 				}
 			}
 		}
@@ -64,13 +99,50 @@ public class GameModel
 			if (gameSuspended != value)
 			{
 				gameSuspended = value;
-				GameSuspendedChanged.Invoke(this, new EventArgs());
+				if(GameSuspendedChanged != null)
+				{
+					GameSuspendedChanged.Invoke(this, new EventArgs());
+				}
 			}
 		}
 	}
 
+	protected bool timeoutTriggersEndgame = true;
+	public bool TimeoutTriggersEndgame
+	{
+		get { return timeoutTriggersEndgame; }
+		set { timeoutTriggersEndgame = value; }
+	}
+
+	protected bool animationSuspended = false;
+	public bool AnimationSuspended
+	{
+		get { return animationSuspended; }
+		set { animationSuspended = value; }
+	}
+
 	public int PreyPopulationSize {	get { return preyPopulation.Count; }}
+
+	public PreyController[] PreyPopulation {
+		get
+		{
+			PreyController[] preyPopCopy = new PreyController[preyPopulation.Count];
+            preyPopulation.CopyTo(preyPopCopy, 0);
+			return preyPopCopy;
+		}
+	}
+
 	public int RoiPopulationSize { get { return roiPopulation.Count; }}
+
+	public RoiController[] RoiPopulation
+	{
+		get
+		{
+			RoiController[] roiPopCopy = new RoiController[roiPopulation.Count];
+			roiPopulation.CopyTo(roiPopCopy, 0);
+			return roiPopCopy;
+		}
+	}
 
 	protected GameModel()
 	{
@@ -116,10 +188,18 @@ public class GameModel
 						if(args.Target is PreyController)
 						{
 							preyPopulation.Remove(args.Target as PreyController);
+							if(PreyPopulationSize < 2 && EndgameDetected != null)
+							{
+								EndgameDetected(this, new EventArgs());
+							}
 						}
-						else
+						else if(args.Target is RoiController)
 						{
 							roiPopulation.Remove(args.Target as RoiController);
+							if(RoiPopulationSize == 0 && EndgameDetected != null)
+							{
+								EndgameDetected(this, new EventArgs());
+							}
 						}
 					}
 					FireFishCaught(players[playerId], args.Target);
@@ -129,7 +209,7 @@ public class GameModel
 
 		remainingTime = GetMaxTime(level);
 		InitOleloNoeaus();
-		SpawnController.Controller.OnFishSpawn += (sender, args) =>
+		SpawnController.Controller.FishSpawn += (sender, args) =>
 		{
 			if (args.SpawnedObject is PreyController)
 			{
@@ -141,7 +221,12 @@ public class GameModel
 				((RoiController)args.SpawnedObject).PreyConsumed += (consumedSender, consumedArgs) =>
 				{
 					consumedPrey.AddLast(consumedArgs.PreyObject);
+					preyPopulation.Remove(consumedArgs.PreyObject);
 					FirePreyConsumed(consumedArgs.PreyObject, consumedArgs.RoiObject);
+					if(PreyPopulationSize < 2 && EndgameDetected != null)
+					{
+						EndgameDetected(this, new EventArgs());
+					}
 				};
 			}
 			else
@@ -156,9 +241,16 @@ public class GameModel
 		if (remainingTime > 0.0f)
 		{
 			remainingTime = Mathf.Clamp((remainingTime - Time.deltaTime), 0.0f, GetMaxTime(Level));
-			if (remainingTime == 0.0f && EndgameDetected != null)
+			if (remainingTime == 0.0f)
 			{
-				EndgameDetected.Invoke(this, new EventArgs());
+				GameSuspended = true;
+				if(TimeoutTriggersEndgame)
+				{
+					if (EndgameDetected != null)
+					{
+						EndgameDetected.Invoke(this, new EventArgs());
+					}
+				}
 			}
 		}
 		// Update player models.
@@ -171,11 +263,30 @@ public class GameModel
 		}
 	}
 
-
+	private void ResetFishPopulations()
+	{
+		foreach(RoiController roi in roiPopulation)
+		{
+			if(roi.Alive)
+			{
+				GameObject.Destroy(roi.gameObject);
+			}
+		}
+		foreach (PreyController prey in preyPopulation)
+		{
+			if (prey.Alive)
+			{
+				GameObject.Destroy(prey.gameObject);
+			}
+		}
+		roiPopulation.Clear();
+		preyPopulation.Clear();
+	}
 
 	private float GetMaxTime(int level)
 	{
-		return 30.0f;
+		return Mathf.Clamp((baseLevelDuration + (marginalLevelDuration * (level - 1))), 
+			baseLevelDuration, maxLevelDuration);
 	}
 
 	private OleloNoeau getOleloNoeau(int level)
@@ -205,7 +316,7 @@ public class GameModel
 
 	protected void FirePreyConsumed(PreyController prey, RoiController roi)
 	{
-		if(PreyConsumed != null)
+		if (PreyConsumed != null)
 		{
 			PreyConsumed.Invoke(this, new PreyConsumedEventArgs(prey, roi));
 		}

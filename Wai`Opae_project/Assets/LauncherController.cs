@@ -62,7 +62,8 @@ public class LauncherController : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 
-		if (GameModel.Model.GetPlayer(playerId).Controller.RightBumper 
+		if ((GameModel.Model.GetPlayer(playerId).Controller.RightBumper 
+				|| GameModel.Model.GetPlayer(playerId).Controller.LeftBumper)
 			&& Time.realtimeSinceStartup - lastProjectileLaunch > interstitialDelay 
 			&& loadedProjectile != null)
 		{
