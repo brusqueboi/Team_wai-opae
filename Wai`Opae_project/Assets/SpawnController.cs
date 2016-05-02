@@ -157,8 +157,6 @@ public class SpawnController {
 				GameModel.Model.Level, GameModel.Model.TotalTime, spawnInfo.roiSpawnCount, spawnInfo.preySpawnCount, 
 				(GameModel.Model.TotalTime * spawnInfo.levelDurationSpawnFraction)));
 		};
-
-		GameModel.Model.Level = 1;
 	}
 	
 	// Update is called once per frame

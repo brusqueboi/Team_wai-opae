@@ -168,6 +168,26 @@ public class GameModel
 		return getOleloNoeau(level).HawaiianText;
 	}
 
+	public int SpeciesCount(string targetCommonName)
+	{
+		if(targetCommonName.Equals("Roi"))
+		{
+			return RoiPopulationSize;
+		}
+		else
+		{
+			int count = 0;
+			foreach (PreyController prey in preyPopulation)
+			{
+				if(prey != null && prey.Alive && prey.CommonName.Equals(targetCommonName))
+				{
+					count++;
+				}
+			}
+			return count;
+		}
+	}
+
 	public void Start()
 	{
 		players[0] = PlayerModel.BuildPlayerModel(1);
@@ -243,17 +263,16 @@ public class GameModel
 
 	public void Update()
 	{
-		if (remainingTime > 0.0f)
+		if (remainingTime >= 0.0f)
 		{
 			remainingTime = Mathf.Clamp((remainingTime - Time.deltaTime), 0.0f, GetMaxTime(Level));
 			if (remainingTime == 0.0f)
 			{
-				GameSuspended = true;
 				if(TimeoutTriggersEndgame)
 				{
 					if (EndgameDetected != null)
 					{
-						EndgameDetected.Invoke(this, new EventArgs());
+						EndgameDetected(this, new EventArgs());
 					}
 				}
 			}

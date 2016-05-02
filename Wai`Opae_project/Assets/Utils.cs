@@ -31,6 +31,13 @@ namespace Assets
 			return bias;
 		}
 
+		public static bool AnyButtonPressed(int playerId)
+		{
+			ControllerModel playerController = GameModel.Model.GetPlayer(playerId).Controller;
+			return GameModel.Model.GetPlayer(playerId).Enabled && (playerController.AButton || playerController.BButton
+				|| playerController.XButton || playerController.YButton || playerController.LeftBumper
+				|| playerController.RightBumper);
+		}
 
 		public static T RequireNonNull<T>(T obj)
 		{

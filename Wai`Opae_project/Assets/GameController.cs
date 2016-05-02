@@ -14,6 +14,7 @@ public class GameController : MonoBehaviour {
 	public bool wide = false;
 
     private AudioController audioController = new AudioController();
+	public GameObject levelProgView;
 
 	// Use this for initialization
 	void Start () {
@@ -33,6 +34,13 @@ public class GameController : MonoBehaviour {
 			normalCollisionMesh.SetActive(true);
 			wideCollisionMesh.SetActive(false);
 		}
+
+		GameModel.Model.EndgameDetected += (sender, args) =>
+		{
+			levelProgView.GetComponent<LevelProgViewController>().UpdateView(GameModel.Model.GetEnglishOleloNoeau(GameModel.Model.Level),
+				GameModel.Model.GetHawaiianOleloNoeau(GameModel.Model.Level));
+			levelProgView.gameObject.SetActive(true);
+		};
 	}
 	
 	// Update is called once per frame
