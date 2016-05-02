@@ -7,7 +7,7 @@ public class ControllerModel {
 	protected static readonly ButtonUIDs BaseButtonIds = 
 		new ButtonUIDs("LeftJoystickHorizontal", "LeftJoystickVertical", "RightJoystickHorizontal", 
 			"RightJoystickVertical", "LeftTrigger", "RightTrigger", "LeftBumper", "RightBumper", "StartButton", 
-			"BackButton", "AButton", "BButton", "XButton", "YButton");
+			"BackButton", "AButton", "BButton", "XButton", "YButton", "HorizontalDPAD", "VerticalDPAD");
 
 	public static readonly ButtonUIDs Player1ButtonUIDs = GetButtonUIDs(1);
 	public static readonly ButtonUIDs Player2ButtonUIDs = GetButtonUIDs(2);
@@ -44,6 +44,10 @@ public class ControllerModel {
 	public bool YButton { get { return GetButtonDown(Ids.yBtn);	}}
 	public bool StartButton { get { return GetButtonDown(Ids.startBtn); }}
 	public bool BackButton { get { return GetButtonDown(Ids.backBtn); }}
+	public bool DPadLeft { get { return GetAxis(Ids.horizontalDPad) < 0.0f; } }
+	public bool DPadRight { get { return GetAxis(Ids.horizontalDPad) > 0.0f; } }
+	public bool DPadUp { get { return GetAxis(Ids.verticalDPad) > 0.0f; } }
+	public bool DPadDown { get { return GetAxis(Ids.verticalDPad) < 0.0f; } }
 
 	protected Dictionary<string, float> repeatDelays = new Dictionary<string, float>();
 
@@ -111,10 +115,13 @@ public class ControllerModel {
 		public string bBtn;
 		public string xBtn;
 		public string yBtn;
+		public string horizontalDPad;
+		public string verticalDPad;
 
 		public ButtonUIDs(string leftAnalogX, string leftAnalogY, string rightAnalogX, string rightAnalogY,
 			string leftTrigger, string rightTrigger, string leftBumper, string rightBumper, string startBtn,
-			string backBtn, string aBtn, string bBtn, string xBtn, string yBtn)
+			string backBtn, string aBtn, string bBtn, string xBtn, string yBtn, string horizontalDPad, 
+			string verticalDPad)
 		{
 			this.leftAnalogX = leftAnalogX;
 			this.leftAnalogY = leftAnalogY;
@@ -130,6 +137,8 @@ public class ControllerModel {
 			this.bBtn = bBtn;
 			this.xBtn = xBtn;
 			this.yBtn = yBtn;
+			this.horizontalDPad = horizontalDPad;
+			this.verticalDPad = verticalDPad;
 		}
 
 		public ButtonUIDs AppendIdSuffix(string suffix)
@@ -149,6 +158,8 @@ public class ControllerModel {
 			uidsCopy.bBtn += suffix;
 			uidsCopy.xBtn += suffix;
 			uidsCopy.yBtn += suffix;
+			uidsCopy.horizontalDPad += suffix;
+			uidsCopy.verticalDPad += suffix;
 			return uidsCopy;
 		}
 

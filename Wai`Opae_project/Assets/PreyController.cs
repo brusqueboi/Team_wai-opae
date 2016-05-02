@@ -22,7 +22,7 @@ namespace Assets
 		public override bool Alive
 		{
 			get { return alive; }
-			protected set { alive = value; }
+			set { alive = value; }
 		}
 
 		public float maxCollisionAvoidanceDistance = 7.0f;
@@ -93,9 +93,18 @@ namespace Assets
 		public float hitDespawnDelay = 6.0f;
 		public override float HitDespawnDelay { get { return hitDespawnDelay; } }
 
+		public float skittishness = 0.5f;
+		public float Skittishness {
+			get { return skittishness; }
+			set { skittishness = value; }
+		}
+
+		protected bool attacked = false;
+
 		public override void InitController()
 		{
 			AnimController.HeightScale = 1.6f;
+			Skittishness = UnityEngine.Random.value;
 		}
 
 		public override CourseDeviationInfo EvaluateNeighbor(
@@ -119,10 +128,27 @@ namespace Assets
 
 		public override void UpdateState()
 		{
-			if(SprintEnergy == MaxSprintEnergy && (int) (UnityEngine.Random.value * 100.0f / 2.0f) == 0)
+			if(SprintEnergy > (MaxSprintEnergy * (1.0f - Skittishness)))
 			{
-				SprintEnabled = true;
+				foreach (AbstractFishController neighbor in neighborCollector.Neighbors)
+				{
+					if (neighbor.Alive && Vector3.Distance(Position, neighbor.Position) < detectionRadius * Skittishness)
+					{
+						SprintEnabled = true;
+						break;
+					}
+				}
 			}
+		}
+
+		public bool OnAttacked(RoiController attacker, float attackAnimDuration)
+		{
+			if(!attacked)
+			{
+				attacked = true;
+				return false;
+			}
+			return attacked;
 		}
 	}
 }

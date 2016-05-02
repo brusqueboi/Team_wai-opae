@@ -15,15 +15,16 @@ using System.Collections;
 /// </summary>
 public class UI : MonoBehaviour 
 {
-    public delegate void CountDownEvent();
-    public static event CountDownEvent OnCountDownFinish;
+	public Vector3 fishDeathTextOffset;
+
+    public AudioClip tcount;
+    public float fvol = 0.7f;
+    public float tvol = 0.3f;
+    private AudioSource tsource { get { return GetComponent<AudioSource>(); } }
 
     #region Public Variables
 
     [Header("Countdown Timer Settings")]
-
-    [Tooltip("The amount of seconds to countdown")]
-    public int seconds = 30;
 
     [Tooltip("Reference to the countdown timer display")]
     public Text countDownTimer;
@@ -44,96 +45,95 @@ public class UI : MonoBehaviour
     [Tooltip("The amount of time in seconds the panel will remain on the screen before disappearing")]
     public float eatPanelTimer;
 
-    [Tooltip("Fade speed of the eat info panel")]
-    public float fadingSpeed = 2f;
+    public Text fishDeathText;
 
-    public Image eatInfoPanel;
-    public Text eatInfoPanelText;   
-
-    #endregion //Public Variables
+	#endregion //Public Variables
 
 
 
-    #region Private Variables
+	#region Private Variables
 
-    private WaitForSeconds oneSecond;
-    private WaitForSeconds waitEatPanelTimer;
-
-    private Color eatInfoPanel_initialColor;
-
-    private float eatInfoPanel_lerpAmount;
+	private bool timerAudioPlayed = false;
+	private Camera mainCamera;
+	private GameObject fishDeathTextTarget = null;
+	private float fishDeathTextStartTime = 0.0f;
 	
-	#endregion //Private Variables
-	
+	#endregion //Private Variable
 
-	
-	#region Unity Engine & Events
-	
-	private void Awake()
-    {
-        Cache();
-    }
-
-    private void OnEnable()
-    {
-        //event subscribe
-        EatFish.OnEatFish += OnEatFish;
-    }
-
-    private void OnEatFish(string fishCommonName, string fishScientificName)
-    {
-
-        //we remove one good fish, decreasing the max number from the health bar
-        healthBar.maxValue = GameModel.Model.PreyPopulationSize;
-
-        //show the info panel with the common name
-        StartCoroutine(ShowEatInfoPanel(fishCommonName));
-    }
-
-    private void OnDisable()
-    {
-        //event unsubscribe
-        EatFish.OnEatFish -= OnEatFish;
-    }
-
-    private void Start()
+    public void Start()
     {
         //display initial amount of seconds set on the countdown timer
-        countDownTimer.text = seconds.ToString();
-        //start countdown
-        StartCoroutine(CountDown());
+        countDownTimer.text = string.Empty;
+		GameModel.Model.PreyConsumed += (sender, args) =>
+		{
+			ShowEatInfoPanel(args.PreyObject, null);
+        };
+		GameModel.Model.FishCaught += (sender, args) =>
+		{
+			ShowEatInfoPanel(args.Target, args.Player.Cursor.gameObject);
+        };
+		GameModel.Model.LevelChanged += (sender, args) =>
+		{
+			timerAudioPlayed = false;
+		};
 
+		gameObject.AddComponent<AudioSource>();
+        tsource.playOnAwake = false;
     }
 
-    private void Update()
+    public void Update()
     {
-        UpdateHealthBar();
-    }
-	
-	#endregion //Unity Engine & Events
-	
-	
-	
-	#region Public Methods
-	
-	
-	
-	#endregion //Public Methods
+		if(healthBar.maxValue != GameModel.Model.PreyPopulationSize + GameModel.Model.RoiPopulationSize)
+		{
+			healthBar.maxValue = GameModel.Model.PreyPopulationSize + GameModel.Model.RoiPopulationSize;
+        }
+		if(healthBar.value != GameModel.Model.RoiPopulationSize)
+		{
+			healthBar.value = GameModel.Model.RoiPopulationSize;
+		}
+		if (fishDeathTextTarget != null)
+		{
+			if (Time.time < fishDeathTextStartTime + eatPanelTimer)
+			{
+				fishDeathText.gameObject.transform.position =
+					Camera.main.WorldToScreenPoint(fishDeathTextTarget.transform.position + fishDeathTextOffset);
+				fishDeathText.color = new Color(
+					fishDeathText.color.r, fishDeathText.color.g, fishDeathText.color.b,
+					((eatPanelTimer - (Time.time - fishDeathTextStartTime)) / (eatPanelTimer)));
+			}
+			else
+			{
+				fishDeathTextTarget = null;
+				fishDeathText.text = string.Empty;
+				fishDeathText.color = new Color(
+					fishDeathText.color.r, fishDeathText.color.g, fishDeathText.color.b, 0.0f);
+			}
+		}
+		else if (Time.time < fishDeathTextStartTime + eatPanelTimer)
+		{
+			fishDeathText.gameObject.transform.position = new Vector3(Screen.width / 2.0f, Screen.height / 2.0f);
+			fishDeathText.color = new Color(
+				fishDeathText.color.r, fishDeathText.color.g, fishDeathText.color.b,
+				((eatPanelTimer - (Time.time - fishDeathTextStartTime)) / (eatPanelTimer)));
+		}
+		if (GameModel.Model.RemainingTime > 0.0f && !GameModel.Model.GameSuspended)
+		{
+			countDownTimer.text = ((int)GameModel.Model.RemainingTime).ToString();
+			if (GameModel.Model.RemainingTime <= 10.0f && !timerAudioPlayed)
+			{
+				timerAudioPlayed = true;
+				playTimerSound();
+			}
+		}
+		else
+		{
+			countDownTimer.text = string.Empty;
+		}
+	}
 	
 	
 	
 	#region Private Methods
-	
-	private void Cache()
-    {
-        oneSecond = new WaitForSeconds(1);
-        waitEatPanelTimer = new WaitForSeconds(eatPanelTimer);
-        //set the health bar max value = to the amount of fish
-        healthBar.maxValue = (GameModel.Model.RoiPopulationSize + GameModel.Model.PreyPopulationSize);
-
-        //save initial color of the panel
-        eatInfoPanel_initialColor = eatInfoPanel.color;
-    }  
 
     private void UpdateHealthBar()
     {
@@ -149,50 +149,17 @@ public class UI : MonoBehaviour
             preyAmountDisplay.text = GameModel.Model.PreyPopulationSize.ToString();
     }
 
-    private IEnumerator ShowEatInfoPanel(string fishName)
+    private void ShowEatInfoPanel(AbstractFishController fish, GameObject target)
     {
-        //set initial and reset the lerp amount to 0
-        eatInfoPanel.color = eatInfoPanel_initialColor;
-        eatInfoPanel_lerpAmount = 0f;
-        //write name on the UI
-        eatInfoPanelText.text = "-1 " + fishName;
-        //enable the panel
-        eatInfoPanel.gameObject.SetActive(true);
-        //wait the set amount of seconds
-        yield return waitEatPanelTimer;
-
-        //fade off the panel
-        while(eatInfoPanel.color != Color.clear)
-        {
-            //slowly fade
-            eatInfoPanel_lerpAmount += fadingSpeed * Time.deltaTime;
-            eatInfoPanel.color = Color.Lerp(eatInfoPanel_initialColor, Color.clear, eatInfoPanel_lerpAmount);
-            yield return null;
-        }
-        //disable the game panel
-        eatInfoPanel.gameObject.SetActive(false);
+		// Enable the panel and show "-1 fish-name".
+		fishDeathText.text = "-1 " + fish.CommonName;
+		fishDeathTextStartTime = Time.time;
+		fishDeathTextTarget = target;
     }
 
-    private IEnumerator CountDown()
+    void playTimerSound()
     {
-        while (seconds > 0)
-        {
-
-            //wait for one second
-            yield return oneSecond;
-            //remove one second from our total seconds
-            seconds--;
-            //update the amount of seconds displayed
-            countDownTimer.text = seconds.ToString();           
-        }
-
-        //call countdown finish event
-        if (OnCountDownFinish != null)
-            OnCountDownFinish();
-
-        //print a message on console at the end of countdown
-        if (Debug.isDebugBuild)
-            print("Countdown is over!");
+        tsource.PlayOneShot(tcount, tvol);
     }
 	
 	#endregion //Private Methods

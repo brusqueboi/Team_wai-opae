@@ -14,6 +14,8 @@ public class LauncherController : MonoBehaviour {
 	public GameObject projectile;
 	public Transform target;
 	public float yPosition = 1.87f;
+    public AudioClip shoot;
+    public AudioClip splash;
 	public float interstitialDelay = 1.0f;
 	public float reloadDelay = 1.0f;
 	public Vector3 reloadOffset;
@@ -21,11 +23,13 @@ public class LauncherController : MonoBehaviour {
 
 	// Audio
     public float delay = 1;
+    public float vol = .3f;
+    public float svol = .7f;
 	public int playerId = 1;
 	public float multiplayerSpreadDist = 2.0f;
+
 	private float reloadStartTime;
 	private Vector3 centerPosition;
-    public AudioController ac;
 
 	protected bool visible = true;
 	public bool Visible
@@ -44,27 +48,31 @@ public class LauncherController : MonoBehaviour {
 
 	protected GameObject loadedProjectile = null;
 	private float lastProjectileLaunch = 0.0f;
+    private AudioSource source { get { return GetComponent<AudioSource>(); }}
 
-    // Use this for initialization
-    void Start () {
+	// Use this for initialization
+	void Start () {
 		centerPosition = GameObject.Find("Main Camera").transform.position;
 		centerPosition.y = yPosition;
 		loadedProjectile = LoadProjectile();
-        ac.Start();
+        gameObject.AddComponent<AudioSource>();
+        source.playOnAwake = false;
 	}
 	
 	// Update is called once per frame
 	void Update () {
 
-		if (GameModel.Model.GetPlayer(playerId).Controller.RightBumper 
+		if ((GameModel.Model.GetPlayer(playerId).Controller.RightBumper 
+				|| GameModel.Model.GetPlayer(playerId).Controller.LeftBumper)
 			&& Time.realtimeSinceStartup - lastProjectileLaunch > interstitialDelay 
 			&& loadedProjectile != null)
 		{
-            ac.PlaySound();
+            PlaySound();
             loadedProjectile.GetComponent<ProjectileController>().FireProjectile(target);
 			lastProjectileLaunch = Time.realtimeSinceStartup;
 			loadedProjectile = null;
             StartCoroutine(LauncherReload());
+            PlaySoundDelay();
            
         }
 		else if(loadedProjectile != null && loadedProjectile.transform.position != transform.position)
@@ -113,6 +121,18 @@ public class LauncherController : MonoBehaviour {
 			loadedProjectile.transform.position = gameObject.transform.position;
 		}
 	}
+
+    void PlaySound()
+    {
+        source.PlayOneShot(shoot, svol);
+        
+    }
+
+    void PlaySoundDelay()
+    {
+        source.PlayDelayed(delay);
+        source.PlayOneShot(splash,vol);
+    }
 
 	public GameObject LoadProjectile()
 	{

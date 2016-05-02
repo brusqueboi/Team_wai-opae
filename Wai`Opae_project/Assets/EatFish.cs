@@ -13,7 +13,6 @@ public class EatFish : MonoBehaviour
 {
     public delegate void EatFishEvent(string fishCommonName, string fishScientificName);
     public static event EatFishEvent OnEatFish;
-    public AudioController audioC;
 	
 	private void OnTriggerEnter(Collider collider)
     {
@@ -25,7 +24,6 @@ public class EatFish : MonoBehaviour
 
             //call event passing the eaten fish names
             if (OnEatFish != null)
-                audioC.playFishEatenSound();
                 OnEatFish(_preyController.commonName, _preyController.scientificName);
 
             //destroy the collided fish
