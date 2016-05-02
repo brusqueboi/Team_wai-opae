@@ -17,7 +17,9 @@ public class LevelProgVeiwController : MonoBehaviour {
 		gameObjRef = gameObject;
 		GameModel.Model.EndgameDetected += (sender, args) =>
 		{
-			UpdateViewForLevel(GameModel.Model.Level, CalculateRating());
+			UpdateViewForLevel(GameModel.Model.Level, CalculateRating(), 
+				GameModel.Model.GetEnglishOleloNoeau(GameModel.Model.Level), 
+				GameModel.Model.GetHawaiianOleloNoeau(GameModel.Model.Level));
 			gameObjRef.SetActive(true);
 		};
 	}
@@ -31,7 +33,7 @@ public class LevelProgVeiwController : MonoBehaviour {
 		}
 	}
 
-	public void UpdateViewForLevel(int level, int stars)
+	public void UpdateViewForLevel(int level, int stars, string oleloNoeauEnglish, string oleloNoeauHawaiian)
 	{
 		// Perform all UI updates to prepare view for specified level.
 	}

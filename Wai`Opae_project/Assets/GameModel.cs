@@ -158,12 +158,12 @@ public class GameModel
 		return players[playerId - 1];
 	}
 
-	public string getEnglishOleloNoeau(int level)
+	public string GetEnglishOleloNoeau(int level)
 	{
 		return getOleloNoeau(level).EnglishText;
 	}
 
-	public string getHawaiianOleloNoeau(int level)
+	public string GetHawaiianOleloNoeau(int level)
 	{
 		return getOleloNoeau(level).HawaiianText;
 	}
@@ -233,6 +233,11 @@ public class GameModel
 			{
 				Debug.Log("Unrecognized fish spawned: " + args.SpawnedObject.name);
 			}
+		};
+
+		EndgameDetected += (sender, args) =>
+		{
+			GameSuspended = true;
 		};
 	}
 

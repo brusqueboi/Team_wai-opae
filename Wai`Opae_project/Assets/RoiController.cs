@@ -153,7 +153,7 @@ namespace Assets
 				
                 neighborInfo.deviation = (neighborRelativePos.x == 0.0f ? 0.0f : Mathf.Sign(neighborRelativePos.x));
 
-				if (Vector3.Distance(Position, neighbor.Position) <= maxAttackRange)
+				if (!GameModel.Model.GameSuspended && Vector3.Distance(Position, neighbor.Position) <= maxAttackRange)
 				{
 					attackableNeighbors.Add(neighbor as PreyController);
 				}
