@@ -34,8 +34,8 @@ public class ControllerModel {
 	// Controller buttons.
 	public Vector2 LeftAnalog { get	{ return GetAnalog(Ids.leftAnalogX, Ids.leftAnalogY); }}
 	public Vector2 RightAnalog { get { return GetAnalog(Ids.rightAnalogX, Ids.rightAnalogY); }}
-	public float LeftTrigger { get { return 0.0f; /* TODO: Implement trigger detection.*/ }}
-	public float RightTrigger {	get	{ return 0.0f; /* TODO: Implement trigger detection.*/ }}
+	public float LeftTrigger { get { return GetAxis(Ids.leftTrigger); }}
+	public float RightTrigger {	get { return GetAxis(Ids.rightTrigger); } }
 	public bool LeftBumper { get { return GetButtonDown(Ids.leftBumper); }}
 	public bool RightBumper { get { return GetButtonDown(Ids.rightBumper); }}
 	public bool AButton { get { return GetButtonDown(Ids.aBtn); }}
