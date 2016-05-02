@@ -182,7 +182,7 @@ public class GameModel
 				players[playerId].Start();
 				players[playerId].Launcher.ProjectileHit += (sender, args) =>
 				{
-					if (args.Target != null)
+					if (args.Target is AbstractFishController)
 					{
 						players[playerId].CaughtFish.Add(args.Target);
 						if(args.Target is PreyController)

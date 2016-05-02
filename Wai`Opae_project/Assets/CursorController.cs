@@ -70,7 +70,7 @@ public class CursorController : MonoBehaviour {
 				LinkedList<AbstractFishController> deadNeighbors = new LinkedList<AbstractFishController>();
 				foreach (AbstractFishController neighbor in neighborCollector.Neighbors)
 				{
-					if(object.Equals(neighbor, null) || neighbor.gameObject == null || neighbor.Alive)
+					if(neighbor.gameObject == null || neighbor.Alive)
 					{
 						deadNeighbors.AddLast(neighbor);
 					}
