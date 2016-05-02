@@ -3,6 +3,10 @@ using System.Collections;
 
 public class AudioController {
 
+    public AudioClip timerTick;
+
+    public float lastTimerAlarmTime = 0.0f;
+
 	// Use this for initialization
 	public void Start () {
 		GameModel.Model.PreyConsumed += (sender, args) =>
@@ -24,7 +28,13 @@ public class AudioController {
 	
 	// Update is called once per frame
 	public void Update () {
-	
+	    if(!GameModel.Model.GameSuspended && !GameModel.Model.AnimationSuspended 
+            && GameModel.Model.RemainingTime < 11.0f && Time.time - lastTimerAlarmTime > 1.0f)
+        {
+            AudioSource cameraAudioSrc = Camera.main.GetComponent<AudioSource>();
+            cameraAudioSrc.PlayOneShot(timerTick);
+            lastTimerAlarmTime = Time.time;
+        }
 	}
 
 	private void AddProjectileLaunchedEvent(int playerId)

@@ -12,6 +12,7 @@ public class GameController : MonoBehaviour {
 	}
 
 	public bool wide = false;
+    public AudioClip timerTick;
 
     private AudioController audioController = new AudioController();
 	public GameObject levelProgView;
@@ -19,6 +20,7 @@ public class GameController : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		controller = this;
+        audioController.timerTick = timerTick;
 		GameModel.Model.Start();
 		SpawnController.Controller.Start();
         audioController.Start();

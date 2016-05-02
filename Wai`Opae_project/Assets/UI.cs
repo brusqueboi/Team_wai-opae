@@ -22,6 +22,9 @@ public class UI : MonoBehaviour
     public float tvol = 0.3f;
     private AudioSource tsource { get { return GetComponent<AudioSource>(); } }
 
+    public Color alertColor;
+    private Color defautColor;
+
     #region Public Variables
 
     [Header("Countdown Timer Settings")]
@@ -64,6 +67,7 @@ public class UI : MonoBehaviour
     {
         //display initial amount of seconds set on the countdown timer
         countDownTimer.text = string.Empty;
+        defautColor = countDownTimer.color;
 		GameModel.Model.PreyConsumed += (sender, args) =>
 		{
 			ShowEatInfoPanel(args.PreyObject, null);
@@ -91,13 +95,15 @@ public class UI : MonoBehaviour
 		{
 			healthBar.value = GameModel.Model.RoiPopulationSize;
 		}
-		if (fishDeathTextTarget != null)
+        bool useAlertColor = !GameModel.Model.GameSuspended && !GameModel.Model.AnimationSuspended && GameModel.Model.RemainingTime < 11.0f;
+        countDownTimer.color = (useAlertColor ? alertColor : defautColor);
+        if (fishDeathTextTarget != null)
 		{
 			if (Time.time < fishDeathTextStartTime + eatPanelTimer)
 			{
 				fishDeathText.gameObject.transform.position =
 					Camera.main.WorldToScreenPoint(fishDeathTextTarget.transform.position + fishDeathTextOffset);
-				fishDeathText.color = new Color(
+                fishDeathText.color = new Color(
 					fishDeathText.color.r, fishDeathText.color.g, fishDeathText.color.b,
 					((eatPanelTimer - (Time.time - fishDeathTextStartTime)) / (eatPanelTimer)));
 			}
