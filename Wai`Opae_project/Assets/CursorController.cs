@@ -34,21 +34,10 @@ public class CursorController : MonoBehaviour {
 		neighborCollector = 
 			GameObject.Find(name + "/Magnetism Controller").GetComponent<NeighborCollectionController>();
 		neighborCollector.GetComponent<SphereCollider>().radius = magnetismRadius;
-		GameModel.Model.LevelChanged += (sender, args) =>
-		{
-			if (neighborCollector != null)
-			{
-				neighborCollector.Neighbors.Clear();
-			}
-		};
 	}
 	
 	// Update is called once per frame
 	void Update () {
-		if(GameModel.Model.AnimationSuspended)
-		{
-			return;
-		}
 		if (Visible)
 		{
 			neighborCollector.GetComponent<SphereCollider>().radius = magnetismRadius;
@@ -70,7 +59,7 @@ public class CursorController : MonoBehaviour {
 				LinkedList<AbstractFishController> deadNeighbors = new LinkedList<AbstractFishController>();
 				foreach (AbstractFishController neighbor in neighborCollector.Neighbors)
 				{
-					if(neighbor.gameObject == null || neighbor.Alive)
+					if(!neighbor.Alive)
 					{
 						deadNeighbors.AddLast(neighbor);
 					}

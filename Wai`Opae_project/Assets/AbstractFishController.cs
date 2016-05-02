@@ -22,7 +22,7 @@ public abstract class AbstractFishController : MonoBehaviour {
 	public abstract Texture2D Bitmap { get; }
 	public abstract float CollisionAvoidanceDist { get; }
 
-	public abstract bool Alive { get; set; }
+	public abstract bool Alive { get; protected set; }
 	public abstract float Velocity { get; protected set; }
 	public abstract float SprintVelocity { get; }
 	public abstract float NormalVelocity { get; }
@@ -69,11 +69,10 @@ public abstract class AbstractFishController : MonoBehaviour {
 	}
 
 	protected NeighborCollectionController neighborCollector;
-	protected bool updatesSuspended = false;
 
 	public abstract void InitController();
 
-	public virtual void BeforeUpdate()
+	public void BeforeUpdate()
 	{
 		// Do nothing.
 	}
@@ -109,7 +108,7 @@ public abstract class AbstractFishController : MonoBehaviour {
 		Position += Transform.forward * Time.deltaTime * Velocity;
 	}
 
-	public virtual void AfterUpdate()
+	public void AfterUpdate()
 	{
 		// Do nothing.
 	}
@@ -288,11 +287,7 @@ public abstract class AbstractFishController : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		if(gameObject == null || object.Equals(gameObject, null) || !Alive)
-		{
-			return;
-		}
-		if(GameModel.Model.AnimationSuspended || updatesSuspended)
+		if(!Alive)
 		{
 			return;
 		}

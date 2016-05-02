@@ -29,14 +29,6 @@ public class ProjectileController : MonoBehaviour
 	{
 		gameObject.transform.Rotate(rotationOffset);
 		neighborCollector = GetComponent<NeighborCollectionController>();
-		GameModel.Model.LevelChanged += (sender, args) =>
-		{
-			if(neighborCollector != null)
-			{
-				neighborCollector.Neighbors.Clear();
-			}
-			target = null;
-		};
     }
 
     void Update()

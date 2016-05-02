@@ -1,10 +1,16 @@
 fileFormatVersion: 2
-guid: aa5a3c420ece07049a1808e840fcb6fa
-timeCreated: 1461707967
+guid: 674b844f6fad22940bfd405b6e6a2678
+timeCreated: 1462156305
 licenseType: Free
 MonoImporter:
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - shoot: {fileID: 8300000, guid: 89ec44b0d5e4ba14884a6c7f56899b26, type: 3}
+  - hit: {fileID: 8300000, guid: db4791c91a36e0445b1dc3998b851445, type: 3}
+  - eat: {fileID: 8300000, guid: 6ca6921214f46ca48a950bd73517c420, type: 3}
+  - background: {fileID: 8300000, guid: 8b556aebe30f2594b90eb3cdf44ab9f0, type: 3}
+  - timer: {fileID: 8300000, guid: dddcbc4cba68c08488e616844f7cbb6c, type: 3}
+  - LC: {instanceID: 0}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 
