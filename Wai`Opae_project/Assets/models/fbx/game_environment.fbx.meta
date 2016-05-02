@@ -1,0 +1,183 @@
+fileFormatVersion: 2
+guid: 5d094c772d2d67e4b9cf83abc7271a32
+timeCreated: 1462183662
+licenseType: Free
+ModelImporter:
+  serializedVersion: 19
+  fileIDToRecycleName:
+    100000: //RootNode
+    100002: collision_mesh
+    100004: ground_detail_plane
+    100006: ground_plane
+    100008: water_plane
+    100010: 1x2_camera
+    100012: 1x2_camera.Target
+    100014: 1x2_collision_mesh
+    100016: 1x3_camera
+    100018: 1x3_camera.Target
+    100020: 1x3_collision_mesh
+    100022: 2x1_camera
+    100024: 2x1_camera.Target
+    100026: 3x1_camera
+    100028: 3x1_camera.Target
+    100030: Respawn Trigger
+    100032: 1x2_collision_mesh_EXT
+    100034: 1x2_collision_mesh_INT
+    100036: 1x2_collision_mesh_CLIP
+    100038: 1x2_collision_mesh_CLIP_01
+    100040: 1x2_collision_mesh_CLIP_02
+    100042: 1x2_collision_mesh_CLIP_03
+    100044: 1x2_collision_mesh_CLIP_04
+    100046: bg_detail_mesh
+    100048: ground_detail_plane_MeshPart0
+    100050: ground_detail_plane_MeshPart1
+    100052: bg_detail_mesh_near
+    400000: //RootNode
+    400002: collision_mesh
+    400004: ground_detail_plane
+    400006: ground_plane
+    400008: water_plane
+    400010: 1x2_camera
+    400012: 1x2_camera.Target
+    400014: 1x2_collision_mesh
+    400016: 1x3_camera
+    400018: 1x3_camera.Target
+    400020: 1x3_collision_mesh
+    400022: 2x1_camera
+    400024: 2x1_camera.Target
+    400026: 3x1_camera
+    400028: 3x1_camera.Target
+    400030: Respawn Trigger
+    400032: 1x2_collision_mesh_EXT
+    400034: 1x2_collision_mesh_INT
+    400036: 1x2_collision_mesh_CLIP
+    400038: 1x2_collision_mesh_CLIP_01
+    400040: 1x2_collision_mesh_CLIP_02
+    400042: 1x2_collision_mesh_CLIP_03
+    400044: 1x2_collision_mesh_CLIP_04
+    400046: bg_detail_mesh
+    400048: ground_detail_plane_MeshPart0
+    400050: ground_detail_plane_MeshPart1
+    400052: bg_detail_mesh_near
+    2300000: //RootNode
+    2300002: collision_mesh
+    2300004: ground_detail_plane
+    2300006: ground_plane
+    2300008: water_plane
+    2300010: 1x2_collision_mesh
+    2300012: 1x3_collision_mesh
+    2300014: Respawn Trigger
+    2300016: 1x2_collision_mesh_EXT
+    2300018: 1x2_collision_mesh_INT
+    2300020: 1x2_collision_mesh_CLIP
+    2300022: 1x2_collision_mesh_CLIP_01
+    2300024: 1x2_collision_mesh_CLIP_02
+    2300026: 1x2_collision_mesh_CLIP_03
+    2300028: 1x2_collision_mesh_CLIP_04
+    2300030: bg_detail_mesh
+    2300032: ground_detail_plane_MeshPart0
+    2300034: ground_detail_plane_MeshPart1
+    2300036: bg_detail_mesh_near
+    3300000: //RootNode
+    3300002: collision_mesh
+    3300004: ground_detail_plane
+    3300006: ground_plane
+    3300008: water_plane
+    3300010: 1x2_collision_mesh
+    3300012: 1x3_collision_mesh
+    3300014: Respawn Trigger
+    3300016: 1x2_collision_mesh_EXT
+    3300018: 1x2_collision_mesh_INT
+    3300020: 1x2_collision_mesh_CLIP
+    3300022: 1x2_collision_mesh_CLIP_01
+    3300024: 1x2_collision_mesh_CLIP_02
+    3300026: 1x2_collision_mesh_CLIP_03
+    3300028: 1x2_collision_mesh_CLIP_04
+    3300030: bg_detail_mesh
+    3300032: ground_detail_plane_MeshPart0
+    3300034: ground_detail_plane_MeshPart1
+    3300036: bg_detail_mesh_near
+    4300000: Box001
+    4300002: collision_mesh
+    4300004: ground_plane
+    4300006: water_plane
+    4300008: ground_detail_plane
+    4300010: 1x3_collision_mesh
+    4300012: 1x2_collision_mesh
+    4300014: Respawn Trigger
+    4300016: 1x2_collision_mesh_INT
+    4300018: 1x2_collision_mesh_EXT
+    4300020: 1x2_collision_mesh_CLIP
+    4300022: 1x2_collision_mesh_CLIP_01
+    4300024: 1x2_collision_mesh_CLIP_02
+    4300026: 1x2_collision_mesh_CLIP_03
+    4300028: 1x2_collision_mesh_CLIP_04
+    4300030: ground_detail_plane_MeshPart0
+    4300032: ground_detail_plane_MeshPart1
+    4300034: bg_detail_mesh
+    4300036: bg_detail_mesh_near
+    9500000: //RootNode
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleRotations: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    importBlendShapes: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    hasTranslationDoF: 0
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 2
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
