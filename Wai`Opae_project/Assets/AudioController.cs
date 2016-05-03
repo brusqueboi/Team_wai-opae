@@ -32,7 +32,7 @@ public class AudioController {
             && GameModel.Model.RemainingTime < 11.0f && Time.time - lastTimerAlarmTime > 1.0f)
         {
             AudioSource cameraAudioSrc = Camera.main.GetComponent<AudioSource>();
-            cameraAudioSrc.PlayOneShot(timerTick);
+            cameraAudioSrc.PlayOneShot(timerTick, 0.1f);
             lastTimerAlarmTime = Time.time;
         }
 	}

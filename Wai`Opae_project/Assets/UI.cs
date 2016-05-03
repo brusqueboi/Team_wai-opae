@@ -17,11 +17,6 @@ public class UI : MonoBehaviour
 {
 	public Vector3 fishDeathTextOffset;
 
-    public AudioClip tcount;
-    public float fvol = 0.7f;
-    public float tvol = 0.3f;
-    private AudioSource tsource { get { return GetComponent<AudioSource>(); } }
-
     public Color alertColor;
     private Color defautColor;
 
@@ -80,9 +75,6 @@ public class UI : MonoBehaviour
 		{
 			timerAudioPlayed = false;
 		};
-
-		gameObject.AddComponent<AudioSource>();
-        tsource.playOnAwake = false;
     }
 
     public void Update()
@@ -125,11 +117,6 @@ public class UI : MonoBehaviour
 		if (GameModel.Model.RemainingTime > 0.0f && !GameModel.Model.GameSuspended)
 		{
 			countDownTimer.text = ((int)GameModel.Model.RemainingTime).ToString();
-			if (GameModel.Model.RemainingTime <= 10.0f && !timerAudioPlayed)
-			{
-				timerAudioPlayed = true;
-				playTimerSound();
-			}
 		}
 		else
 		{
@@ -161,11 +148,6 @@ public class UI : MonoBehaviour
 		fishDeathText.text = "-1 " + fish.CommonName;
 		fishDeathTextStartTime = Time.time;
 		fishDeathTextTarget = target;
-    }
-
-    void playTimerSound()
-    {
-        tsource.PlayOneShot(tcount, tvol);
     }
 	
 	#endregion //Private Methods
