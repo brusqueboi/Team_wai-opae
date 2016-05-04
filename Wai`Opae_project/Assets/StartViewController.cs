@@ -62,7 +62,8 @@ public class StartViewController : MonoBehaviour
 			{
 				dismissText.text = "Press any button to play";
 				dismissTextOutline.text = dismissText.text;
-				if (Utils.AnyButtonPressed(1) || Utils.AnyButtonPressed(2) || Utils.AnyButtonPressed(3) || Utils.AnyButtonPressed(4))
+				if (Utils.AnyButtonPressed(1, true) || Utils.AnyButtonPressed(2, true) 
+					|| Utils.AnyButtonPressed(3, true) || Utils.AnyButtonPressed(4, true))
 				{
 					GameModel.Model.Level++;
 					gameObject.SetActive(false);

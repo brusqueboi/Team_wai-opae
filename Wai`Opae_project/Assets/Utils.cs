@@ -31,7 +31,7 @@ namespace Assets
 			return bias;
 		}
 
-		public static bool AnyButtonPressed(int playerId)
+		public static bool AnyButtonPressed(int playerId, bool includeStartBack)
 		{
 			if(!GameModel.Model.GetPlayer(playerId).Enabled)
 			{
@@ -41,7 +41,8 @@ namespace Assets
 			return GameModel.Model.GetPlayer(playerId).Enabled && (playerController.AButton || playerController.BButton
 				|| playerController.XButton || playerController.YButton || playerController.LeftBumper
 				|| playerController.RightBumper || playerController.LeftTrigger > playerController.DeadZoneRadius 
-				|| playerController.RightTrigger > playerController.DeadZoneRadius);
+				|| playerController.RightTrigger > playerController.DeadZoneRadius 
+				|| (includeStartBack ? playerController.StartButton || playerController.BackButton : false));
 		}
 
 		public static T RequireNonNull<T>(T obj)

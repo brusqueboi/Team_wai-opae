@@ -81,7 +81,7 @@ public class LauncherController : MonoBehaviour {
 	{
 		if(!GameModel.Model.GameSuspended && !GameModel.Model.AnimationSuspended && GameModel.Model.Level != 0)
 		{
-			if (Utils.AnyButtonPressed(playerId) && Time.realtimeSinceStartup - lastProjectileLaunch > interstitialDelay
+			if (Utils.AnyButtonPressed(playerId, false) && Time.realtimeSinceStartup - lastProjectileLaunch > interstitialDelay
 			&& loadedProjectile != null)
 			{
 				PlaySound();

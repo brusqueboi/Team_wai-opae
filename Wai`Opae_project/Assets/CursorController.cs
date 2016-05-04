@@ -47,7 +47,8 @@ public class CursorController : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		if(GameModel.Model.GameSuspended || GameModel.Model.AnimationSuspended || GameModel.Model.Level == 0)
+		if(GameModel.Model.GameSuspended || GameModel.Model.AnimationSuspended || GameModel.Model.Level == 0 
+			|| !GameModel.Model.GetPlayer(playerId).Enabled)
 		{
 			return;
 		}

@@ -93,7 +93,7 @@ public class PlayerModel {
 	// Update is called once per frame
 	public void Update()
 	{
-		if(Controller.StartButton)
+		if(!GameModel.Model.GameSuspended && !GameModel.Model.AnimationSuspended && Controller.StartButton)
 		{
 			Enabled = !Enabled;
 		}

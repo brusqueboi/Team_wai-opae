@@ -122,7 +122,8 @@ public class LevelProgViewController : MonoBehaviour {
 			{
 				dismissText.text = "Press any button to continue";
 				dismissTextOutline.text = dismissText.text;
-				if (Utils.AnyButtonPressed(1) || Utils.AnyButtonPressed(2) || Utils.AnyButtonPressed(3) || Utils.AnyButtonPressed(4))
+				if (Utils.AnyButtonPressed(1, true) || Utils.AnyButtonPressed(2, true) 
+					|| Utils.AnyButtonPressed(3, true) || Utils.AnyButtonPressed(4, true))
 				{
 					gameObject.SetActive(false);
 					if (GameModel.Model.RoiPopulationSize > 0 || GameModel.Model.PreyPopulationSize < 2)

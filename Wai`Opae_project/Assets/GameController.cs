@@ -39,6 +39,34 @@ public class GameController : MonoBehaviour {
 		Vector3 defaultCursorPosP3 = GameModel.Model.GetPlayer(3).Cursor.transform.position;
 		Vector3 defaultCursorPosP4 = GameModel.Model.GetPlayer(4).Cursor.transform.position;
 
+		bool player1Enabled = true;
+		bool player2Enabled = true;
+		bool player3Enabled = true;
+		bool player4Enabled = true;
+
+		GameModel.Model.GameSuspendedChanged += (sender, args) =>
+		{
+			if(GameModel.Model.GameSuspended)
+			{
+				player1Enabled = GameModel.Model.GetPlayer(1).Enabled;
+				player2Enabled = GameModel.Model.GetPlayer(2).Enabled;
+				player3Enabled = GameModel.Model.GetPlayer(3).Enabled;
+				player4Enabled = GameModel.Model.GetPlayer(4).Enabled;
+
+				GameModel.Model.GetPlayer(1).Enabled = true;
+				GameModel.Model.GetPlayer(2).Enabled = true;
+				GameModel.Model.GetPlayer(3).Enabled = true;
+				GameModel.Model.GetPlayer(4).Enabled = true;
+			}
+			else
+			{
+				GameModel.Model.GetPlayer(1).Enabled = player1Enabled;
+				GameModel.Model.GetPlayer(2).Enabled = player2Enabled;
+				GameModel.Model.GetPlayer(3).Enabled = player3Enabled;
+				GameModel.Model.GetPlayer(4).Enabled = player4Enabled;
+			}
+		};
+
 		GameModel.Model.LevelChanged += (sender, args) =>
 		{
 			GameModel.Model.GetPlayer(1).Cursor.ResetNeighbors();
@@ -55,13 +83,6 @@ public class GameController : MonoBehaviour {
 			GameModel.Model.GetPlayer(2).Cursor.gameObject.SetActive(GameModel.Model.Level != 0);
 			GameModel.Model.GetPlayer(3).Cursor.gameObject.SetActive(GameModel.Model.Level != 0);
 			GameModel.Model.GetPlayer(4).Cursor.gameObject.SetActive(GameModel.Model.Level != 0);
-		};
-		GameModel.Model.EndgameDetected += (sender, args) =>
-		{
-			GameModel.Model.GetPlayer(1).Cursor.gameObject.SetActive(false);
-			GameModel.Model.GetPlayer(2).Cursor.gameObject.SetActive(false);
-			GameModel.Model.GetPlayer(3).Cursor.gameObject.SetActive(false);
-			GameModel.Model.GetPlayer(4).Cursor.gameObject.SetActive(false);
 		};
 
 		if (wide)
