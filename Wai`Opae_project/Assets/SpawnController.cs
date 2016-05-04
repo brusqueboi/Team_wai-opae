@@ -24,6 +24,7 @@ public class SpawnController {
 	private float lastRoiSpawnTime = 0.0f;
 	private float lastPreySpawnTime = 0.0f;
 	private int spawnId = 0;
+	private LevelSpawnInfo levelZeroSpawnInfo = new LevelSpawnInfo(10, 30, 0.0f);
 
 	private LinkedList<GameObject> preySpawnQueue = new LinkedList<GameObject>();
 	private LinkedList<GameObject> roiSpawnQueue = new LinkedList<GameObject>();
@@ -123,6 +124,16 @@ public class SpawnController {
 		idolReference.SetActive(false);
 		tangReference.SetActive(false);
 
+		spawnInfo = levelZeroSpawnInfo;
+		for (int i = 0; i < spawnInfo.preySpawnCount; i++)
+		{
+			Spawn(SelectRandomPreyFish(), true);
+        }
+		for (int i = 0; i < spawnInfo.roiSpawnCount; i++)
+		{
+			Spawn(roiReference, true);
+		}
+
 		GameModel.Model.EndgameDetected += (sender, args) =>
 		{
 			Debug.Log("Endgame detected.");
@@ -152,6 +163,19 @@ public class SpawnController {
 				GameObject roiRefObj = roiReference;
 				roiSpawnQueue.AddLast(Spawn(roiRefObj, false));
 			}
+			if(GameModel.Model.Level == 0)
+			{
+				foreach(GameObject roiSpawn in roiSpawnQueue)
+				{
+					roiSpawn.SetActive(true);
+				}
+				roiSpawnQueue.Clear();
+				foreach (GameObject preySpawn in preySpawnQueue)
+				{
+					preySpawn.SetActive(true);
+				}
+				preySpawnQueue.Clear();
+			}
 			Debug.Log(String.Format(
 				"Spawn Information (Level {0} [{1} sec.])- Roi={2}, Prey={3}, Spawn Duration={4} sec.", 
 				GameModel.Model.Level, GameModel.Model.TotalTime, spawnInfo.roiSpawnCount, spawnInfo.preySpawnCount, 
@@ -161,7 +185,7 @@ public class SpawnController {
 	
 	// Update is called once per frame
 	public void Update () {
-		if(GameModel.Model.GameSuspended)
+		if(GameModel.Model.GameSuspended || GameModel.Model.AnimationSuspended)
 		{
 			return;
 		}
@@ -223,7 +247,7 @@ public class SpawnController {
 	{
 		if(level == 0)
 		{
-			return LevelSpawnInfo.SPAWN_DISABLED;
+			return levelZeroSpawnInfo;
 		}
 		LevelSpawnInfo spawnInfo = new LevelSpawnInfo();
 		spawnInfo.roiSpawnCount = initialRoiPopSize + (int) ((level * level) * roiSpawnRateScale);

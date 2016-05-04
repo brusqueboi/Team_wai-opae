@@ -17,6 +17,8 @@ public class GameController : MonoBehaviour {
     private AudioController audioController = new AudioController();
 	public GameObject levelProgView;
 
+	public GameObject uiObject;
+
 	// Use this for initialization
 	void Start () {
 		controller = this;
@@ -26,6 +28,42 @@ public class GameController : MonoBehaviour {
         audioController.Start();
 		GameObject normalCollisionMesh = GameObject.Find("game_environment/1x2_collision_mesh");
 		GameObject wideCollisionMesh = GameObject.Find("game_environment/1x3_collision_mesh");
+
+		GameModel.Model.GetPlayer(1).Cursor.gameObject.SetActive(false);
+		GameModel.Model.GetPlayer(2).Cursor.gameObject.SetActive(false);
+		GameModel.Model.GetPlayer(3).Cursor.gameObject.SetActive(false);
+		GameModel.Model.GetPlayer(4).Cursor.gameObject.SetActive(false);
+
+		Vector3 defaultCursorPosP1 = GameModel.Model.GetPlayer(1).Cursor.transform.position;
+		Vector3 defaultCursorPosP2 = GameModel.Model.GetPlayer(2).Cursor.transform.position;
+		Vector3 defaultCursorPosP3 = GameModel.Model.GetPlayer(3).Cursor.transform.position;
+		Vector3 defaultCursorPosP4 = GameModel.Model.GetPlayer(4).Cursor.transform.position;
+
+		GameModel.Model.LevelChanged += (sender, args) =>
+		{
+			GameModel.Model.GetPlayer(1).Cursor.ResetNeighbors();
+			GameModel.Model.GetPlayer(2).Cursor.ResetNeighbors();
+			GameModel.Model.GetPlayer(3).Cursor.ResetNeighbors();
+			GameModel.Model.GetPlayer(4).Cursor.ResetNeighbors();
+
+			GameModel.Model.GetPlayer(1).Cursor.transform.position = defaultCursorPosP1;
+			GameModel.Model.GetPlayer(2).Cursor.transform.position = defaultCursorPosP2;
+			GameModel.Model.GetPlayer(3).Cursor.transform.position = defaultCursorPosP3;
+			GameModel.Model.GetPlayer(4).Cursor.transform.position = defaultCursorPosP4;
+
+			GameModel.Model.GetPlayer(1).Cursor.gameObject.SetActive(GameModel.Model.Level != 0);
+			GameModel.Model.GetPlayer(2).Cursor.gameObject.SetActive(GameModel.Model.Level != 0);
+			GameModel.Model.GetPlayer(3).Cursor.gameObject.SetActive(GameModel.Model.Level != 0);
+			GameModel.Model.GetPlayer(4).Cursor.gameObject.SetActive(GameModel.Model.Level != 0);
+		};
+		GameModel.Model.EndgameDetected += (sender, args) =>
+		{
+			GameModel.Model.GetPlayer(1).Cursor.gameObject.SetActive(false);
+			GameModel.Model.GetPlayer(2).Cursor.gameObject.SetActive(false);
+			GameModel.Model.GetPlayer(3).Cursor.gameObject.SetActive(false);
+			GameModel.Model.GetPlayer(4).Cursor.gameObject.SetActive(false);
+		};
+
 		if (wide)
 		{
 			normalCollisionMesh.SetActive(false);
@@ -39,9 +77,16 @@ public class GameController : MonoBehaviour {
 
 		GameModel.Model.EndgameDetected += (sender, args) =>
 		{
+			uiObject.SetActive(false);
 			levelProgView.GetComponent<LevelProgViewController>().UpdateView(GameModel.Model.GetEnglishOleloNoeau(GameModel.Model.Level),
 				GameModel.Model.GetHawaiianOleloNoeau(GameModel.Model.Level));
-			levelProgView.gameObject.SetActive(true);
+			levelProgView.GetComponent<LevelProgViewController>().Visible = true;
+		};
+
+		GameModel.Model.LevelChanged += (sender, args) =>
+		{
+			levelProgView.gameObject.SetActive(false);
+			uiObject.SetActive(GameModel.Model.Level != 0);
 		};
 	}
 	
@@ -55,10 +100,13 @@ public class GameController : MonoBehaviour {
 		GameModel.Model.Update();
 		SpawnController.Controller.Update();
 		audioController.Update();
-		CheckDebugButtonsForPlayer(1);
-		CheckDebugButtonsForPlayer(2);
-		CheckDebugButtonsForPlayer(3);
-		CheckDebugButtonsForPlayer(4);
+		if(GameModel.Model.Started)
+		{
+			CheckDebugButtonsForPlayer(1);
+			CheckDebugButtonsForPlayer(2);
+			CheckDebugButtonsForPlayer(3);
+			CheckDebugButtonsForPlayer(4);
+		}
 	}
 
 	private void CheckDebugButtonsForPlayer(int playerId)

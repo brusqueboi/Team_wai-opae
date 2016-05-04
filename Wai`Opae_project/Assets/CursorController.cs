@@ -13,6 +13,7 @@ public class CursorController : MonoBehaviour {
 	public float maxMagnetismStrength = 0.5f;
 
 	private NeighborCollectionController neighborCollector;
+	private Vector3 defaultCursorPos;
 
 	protected bool visible = true;
 	public bool Visible
@@ -27,6 +28,14 @@ public class CursorController : MonoBehaviour {
 			}
 		}
 	}
+
+	public void ResetNeighbors()
+	{
+		if(neighborCollector != null)
+		{
+			neighborCollector.Neighbors.Clear();
+		}
+	}
 	
 	// Use this for initialization
 	void Start ()
@@ -34,18 +43,11 @@ public class CursorController : MonoBehaviour {
 		neighborCollector = 
 			GameObject.Find(name + "/Magnetism Controller").GetComponent<NeighborCollectionController>();
 		neighborCollector.GetComponent<SphereCollider>().radius = magnetismRadius;
-		GameModel.Model.LevelChanged += (sender, args) =>
-		{
-			if (neighborCollector != null)
-			{
-				neighborCollector.Neighbors.Clear();
-			}
-		};
 	}
 	
 	// Update is called once per frame
 	void Update () {
-		if(GameModel.Model.AnimationSuspended)
+		if(GameModel.Model.GameSuspended || GameModel.Model.AnimationSuspended || GameModel.Model.Level == 0)
 		{
 			return;
 		}
@@ -54,7 +56,10 @@ public class CursorController : MonoBehaviour {
 			neighborCollector.GetComponent<SphereCollider>().radius = magnetismRadius;
 			Vector3 originalCursorPos = transform.position;
 			// Move cursor with acceleration.
-			Vector2 stickDeflection = GameModel.Model.GetPlayer(playerId).Controller.LeftAnalog;
+			Vector2 stickDeflection = Vector2.ClampMagnitude(
+				GameModel.Model.GetPlayer(playerId).Controller.LeftAnalog 
+				+ GameModel.Model.GetPlayer(playerId).Controller.RightAnalog
+				+ GameModel.Model.GetPlayer(playerId).Controller.DPad, 1.0f);
 			float stickDeflectionMagnitude = Mathf.Clamp(stickDeflection.magnitude, 0.0f, 1.0f);
 			Vector3 moveDirection = new Vector3(stickDeflection.x, 0.0f, stickDeflection.y);
 			GetComponent<CharacterController>().Move(moveDirection * (maxCursorSpeed * Time.deltaTime));
@@ -70,7 +75,7 @@ public class CursorController : MonoBehaviour {
 				LinkedList<AbstractFishController> deadNeighbors = new LinkedList<AbstractFishController>();
 				foreach (AbstractFishController neighbor in neighborCollector.Neighbors)
 				{
-					if(neighbor.gameObject == null || neighbor.Alive)
+					if(neighbor == null || neighbor.gameObject == null || neighbor.Alive)
 					{
 						deadNeighbors.AddLast(neighbor);
 					}

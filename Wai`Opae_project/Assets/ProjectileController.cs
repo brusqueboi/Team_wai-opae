@@ -14,13 +14,15 @@ public class ProjectileController : MonoBehaviour
 	public float acceleration = 5.0f;
 	public float velocity = 0.0f;
 	public Vector3 rotationOffset = Vector3.zero;
-	public float despawnDistance = 1000.0f; // 1 Km
+	public float despawnDistance = 50.0f; // 50 m
+	public float despawnTime = 10.0f; // 10 sec.
 	public float aimAssistStrength = 1.0f;
 	public float magnetismStrength = 1.0f;
 
 	private Quaternion forwardRotation;
 	private Quaternion offsetRotation;
 	private Vector3 launchPosition;
+	private float launchTime;
 	private bool projectileFired = false;
 	private NeighborCollectionController neighborCollector;
 	private RoiController target = null;
@@ -43,7 +45,8 @@ public class ProjectileController : MonoBehaviour
     {
 		if(velocity > 0.0f)
 		{
-			if (Vector3.Distance(launchPosition, gameObject.transform.position) > despawnDistance)
+			if (Vector3.Distance(launchPosition, gameObject.transform.position) > despawnDistance 
+				|| Time.time - launchTime > despawnTime)
 			{
 				velocity = 0.0f;
 				FireCollisionMiss();
@@ -164,6 +167,7 @@ public class ProjectileController : MonoBehaviour
 		}
 
 		launchPosition = gameObject.transform.position;
+		launchTime = Time.time;
 		gameObject.transform.LookAt(target);
 		forwardRotation = gameObject.transform.rotation; // Save forward rotation.
 		gameObject.transform.Rotate(rotationOffset);

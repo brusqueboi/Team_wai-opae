@@ -33,10 +33,15 @@ namespace Assets
 
 		public static bool AnyButtonPressed(int playerId)
 		{
+			if(!GameModel.Model.GetPlayer(playerId).Enabled)
+			{
+				return false;
+			}
 			ControllerModel playerController = GameModel.Model.GetPlayer(playerId).Controller;
 			return GameModel.Model.GetPlayer(playerId).Enabled && (playerController.AButton || playerController.BButton
 				|| playerController.XButton || playerController.YButton || playerController.LeftBumper
-				|| playerController.RightBumper);
+				|| playerController.RightBumper || playerController.LeftTrigger > playerController.DeadZoneRadius 
+				|| playerController.RightTrigger > playerController.DeadZoneRadius);
 		}
 
 		public static T RequireNonNull<T>(T obj)

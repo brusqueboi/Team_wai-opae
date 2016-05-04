@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System;
+using Assets;
 
 public class LauncherController : MonoBehaviour {
 	// Events
@@ -57,33 +58,47 @@ public class LauncherController : MonoBehaviour {
 		loadedProjectile = LoadProjectile();
         gameObject.AddComponent<AudioSource>();
         source.playOnAwake = false;
+		projectile.SetActive(false);
+		loadedProjectile.SetActive(false);
+		GameModel.Model.LevelChanged += (sender, args) =>
+		{
+			if(loadedProjectile != null)
+			{
+				loadedProjectile.SetActive(GameModel.Model.Level != 0);
+			}
+		};
+		GameModel.Model.EndgameDetected += (sender, args) => 
+		{
+			if (loadedProjectile != null)
+			{
+				loadedProjectile.SetActive(false);
+			}
+		};
 	}
 	
 	// Update is called once per frame
 	void Update ()
 	{
-		ControllerModel curPlayerController = GameModel.Model.GetPlayer(playerId).Controller;
-		if ((curPlayerController.RightBumper
-				|| curPlayerController.LeftBumper
-				|| curPlayerController.RightTrigger > curPlayerController.DeadZoneRadius
-				|| curPlayerController.LeftTrigger > curPlayerController.DeadZoneRadius)
-			&& Time.realtimeSinceStartup - lastProjectileLaunch > interstitialDelay 
+		if(!GameModel.Model.GameSuspended && !GameModel.Model.AnimationSuspended && GameModel.Model.Level != 0)
+		{
+			if (Utils.AnyButtonPressed(playerId) && Time.realtimeSinceStartup - lastProjectileLaunch > interstitialDelay
 			&& loadedProjectile != null)
-		{
-            PlaySound();
-            loadedProjectile.GetComponent<ProjectileController>().FireProjectile(target);
-			lastProjectileLaunch = Time.realtimeSinceStartup;
-			loadedProjectile = null;
-            StartCoroutine(LauncherReload());
-            PlaySoundDelay();
-           
-        }
-		else if(loadedProjectile != null && loadedProjectile.transform.position != transform.position)
-		{
-			float animProgress = (Time.time - reloadStartTime) / reloadDuration * 10;
+			{
+				PlaySound();
+				loadedProjectile.GetComponent<ProjectileController>().FireProjectile(target);
+				lastProjectileLaunch = Time.realtimeSinceStartup;
+				loadedProjectile = null;
+				StartCoroutine(LauncherReload());
+				PlaySoundDelay();
 
-			loadedProjectile.transform.position = 
-				Vector3.Lerp((transform.position - reloadOffset), transform.position, animProgress );
+			}
+			else if (loadedProjectile != null && loadedProjectile.transform.position != transform.position)
+			{
+				float animProgress = (Time.time - reloadStartTime) / reloadDuration * 10;
+
+				loadedProjectile.transform.position =
+					Vector3.Lerp((transform.position - reloadOffset), transform.position, animProgress);
+			}
 		}
 		// Rotate projectile to look at target.
 		if (loadedProjectile != null)
@@ -139,8 +154,10 @@ public class LauncherController : MonoBehaviour {
 
 	public GameObject LoadProjectile()
 	{
+		projectile.SetActive(true);
 		GameObject projectileClone =
 				(GameObject)Instantiate(projectile, transform.position - reloadOffset, transform.rotation);
+		projectile.SetActive(false);
 		projectileClone.transform.LookAt(target);
 		projectileClone.transform.Rotate(projectileClone.GetComponent<ProjectileController>().rotationOffset);
 		reloadStartTime = Time.time;

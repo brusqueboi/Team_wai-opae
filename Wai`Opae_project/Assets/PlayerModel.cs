@@ -42,7 +42,7 @@ public class PlayerModel {
 	{
 		if (playerIdx < 1 || playerIdx > 4)
 		{
-			Debug.Log("Failed to create player: " + playerIdx);
+			Debug.Log("Failed to create player (invalid player ID): " + playerIdx);
 			return null;
 		}
 		ControllerModel controller = null;
@@ -66,14 +66,14 @@ public class PlayerModel {
 		GameObject launcherObject = GameObject.Find(initInfo.launcherName);
 		if (cursorObject == null || launcherObject == null)
 		{
-			Debug.Log("Failed to create player: " + playerIdx);
+			Debug.Log("Failed to create player (invalid cursor or launcher name): " + playerIdx);
 			return null;
 		}
 		CursorController cursor = cursorObject.GetComponent<CursorController>();
 		LauncherController launcher = launcherObject.GetComponent<LauncherController>();
 		if (cursor == null || launcher == null)
 		{
-			Debug.Log("Failed to create player: " + playerIdx);
+			Debug.Log("Failed to create player (unable to find controller component): " + playerIdx);
 			return null;
 		}
 		return new PlayerModel(playerIdx, controller, cursor, launcher);

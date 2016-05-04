@@ -48,6 +48,7 @@ public class ControllerModel {
 	public bool DPadRight { get { return GetAxis(Ids.horizontalDPad) > 0.0f; } }
 	public bool DPadUp { get { return GetAxis(Ids.verticalDPad) > 0.0f; } }
 	public bool DPadDown { get { return GetAxis(Ids.verticalDPad) < 0.0f; } }
+	public Vector2 DPad { get { return GetAnalog(Ids.horizontalDPad, Ids.verticalDPad); } }
 
 	protected Dictionary<string, float> repeatDelays = new Dictionary<string, float>();
 

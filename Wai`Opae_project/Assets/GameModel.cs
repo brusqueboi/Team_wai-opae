@@ -22,6 +22,8 @@ public class GameModel
 	protected LinkedList<RoiController> roiPopulation = new LinkedList<RoiController>();
 	protected LinkedList<PreyController> consumedPrey = new LinkedList<PreyController>();
 
+	protected bool started = false;
+	public bool Started { get { return started; } }
 
 	protected float baseLevelDuration = 20.0f;
 	public float BaseLevelDuration
@@ -151,7 +153,7 @@ public class GameModel
 
 	public PlayerModel GetPlayer(int playerId)
 	{
-		if(playerId < 0 || playerId > 4)
+		if(playerId <= 0 || playerId > 4)
 		{
 			return null;
 		}
@@ -225,6 +227,7 @@ public class GameModel
 					FireFishCaught(players[playerId], args.Target);
 				};
 			}
+			started = true;
 		}
 
 		remainingTime = GetMaxTime(level);
@@ -266,14 +269,11 @@ public class GameModel
 		if (!GameSuspended && remainingTime >= 0.0f)
 		{
 			remainingTime = Mathf.Clamp((remainingTime - Time.deltaTime), 0.0f, GetMaxTime(Level));
-			if (remainingTime == 0.0f)
+			if (remainingTime == 0.0f && TimeoutTriggersEndgame)
 			{
-				if(TimeoutTriggersEndgame)
+				if (EndgameDetected != null)
 				{
-					if (EndgameDetected != null)
-					{
-						EndgameDetected(this, new EventArgs());
-					}
+					EndgameDetected(this, new EventArgs());
 				}
 			}
 		}
@@ -405,14 +405,14 @@ public class GameModel
 
 	private void InitOleloNoeaus()
 	{
-		oleloNoeau.Add(new OleloNoeau("Mālama i ke kala ka i‘a hi‘u ‘oi.", 
-			"Watch out for the kala, the fish with a sharp tail.", -1, true));
-		oleloNoeau.Add(new OleloNoeau("He manini ka i‘a, mai hō‘ā i ke ahi.",
-			"The fish is just a manini, so do not light a fire.", 1, true));
-		oleloNoeau.Add(new OleloNoeau("‘A‘ohe e loa‘a, he uhu pakelo.",
-			"Watch out for the kala, the fish with a sharp tail.", 2, true));
-		oleloNoeau.Add(new OleloNoeau("Mālama i ke kala ka i‘a hi‘u ‘oi.",
-			"He will not be caught, for he is a parrotfish, slippery with slime.", 3, true));
+		oleloNoeau.Add(new OleloNoeau("Mālama i ke kala ka i‘a hi‘u ‘oi", 
+			"Watch out for the kala, the fish with a sharp tail", -1, true));
+		oleloNoeau.Add(new OleloNoeau("He manini ka i‘a, mai hō‘ā i ke ahi",
+			"The fish is just a manini, so do not light a fire", 1, true));
+		oleloNoeau.Add(new OleloNoeau("‘A‘ohe ia e loa‘a aku, he ulua kāpapa no ka moana",
+			"He will not be caught, for he is a parrotfish, slippery with slime", 2, true));
+		oleloNoeau.Add(new OleloNoeau("Mālama i ke kala ka i‘a hi‘u ‘oi",
+			"He cannot be caught for he is an ulua fish of the deep ocean", 3, true));
 	}
 
 }
