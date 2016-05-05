@@ -13,8 +13,13 @@ public class GameController : MonoBehaviour {
 
 	public bool wide = false;
     public AudioClip timerTick;
+	public GameObject controlsDiagramLeft;
+	public GameObject controlsDiagramRight;
+	public GameObject controlsDiagramLeftWide;
+	public GameObject controlsDiagramRightWide;
 
-    private AudioController audioController = new AudioController();
+
+	private AudioController audioController = new AudioController();
 	public GameObject levelProgView;
 
 	public GameObject uiObject;
@@ -89,11 +94,19 @@ public class GameController : MonoBehaviour {
 		{
 			normalCollisionMesh.SetActive(false);
 			wideCollisionMesh.SetActive(true);
+			controlsDiagramLeft.SetActive(false);
+			controlsDiagramRight.SetActive(false);
+			controlsDiagramLeftWide.SetActive(true);
+			controlsDiagramRightWide.SetActive(true);
 		}
 		else
 		{
 			normalCollisionMesh.SetActive(true);
 			wideCollisionMesh.SetActive(false);
+			controlsDiagramLeft.SetActive(true);
+			controlsDiagramRight.SetActive(true);
+			controlsDiagramLeftWide.SetActive(false);
+			controlsDiagramRightWide.SetActive(false);
 		}
 
 		GameModel.Model.EndgameDetected += (sender, args) =>
