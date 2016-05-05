@@ -13,11 +13,13 @@
     <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <TargetFrameworkProfile>Unity Subset v3.5</TargetFrameworkProfile>
-    <CompilerResponseFile></CompilerResponseFile>
+    <CompilerResponseFile>
+    </CompilerResponseFile>
     <UnityProjectType>Game:1</UnityProjectType>
     <UnityBuildTarget>StandaloneWindows:5</UnityBuildTarget>
     <UnityVersion>5.3.4f1</UnityVersion>
-    <RootNamespace></RootNamespace>
+    <RootNamespace>
+    </RootNamespace>
     <LangVersion Condition=" '$(VisualStudioVersion)' != '10.0' ">4</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -82,7 +84,6 @@
     <Compile Include="Assets\FishAnimationController.cs" />
     <Compile Include="Assets\GameController.cs" />
     <Compile Include="Assets\GameModel.cs" />
-    <Compile Include="Assets\HudController.cs" />
     <Compile Include="Assets\LauncherController.cs" />
     <Compile Include="Assets\LevelProgViewController.cs" />
     <Compile Include="Assets\LevelSummary.cs" />
@@ -95,6 +96,7 @@
     <Compile Include="Assets\SpawnController.cs" />
     <Compile Include="Assets\StartViewController.cs" />
     <Compile Include="Assets\TextStrobeController.cs" />
+    <Compile Include="Assets\HudController.cs" />
     <Compile Include="Assets\Utils.cs" />
   </ItemGroup>
   <ItemGroup>

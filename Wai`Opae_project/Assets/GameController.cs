@@ -30,9 +30,7 @@ public class GameController : MonoBehaviour {
         audioController.timerTick = timerTick;
 		GameModel.Model.Start();
 		SpawnController.Controller.Start();
-        audioController.Start();
-		GameObject normalCollisionMesh = GameObject.Find("game_environment/1x2_collision_mesh");
-		GameObject wideCollisionMesh = GameObject.Find("game_environment/1x3_collision_mesh");
+		audioController.Start();
 
 		GameModel.Model.GetPlayer(1).Cursor.gameObject.SetActive(false);
 		GameModel.Model.GetPlayer(2).Cursor.gameObject.SetActive(false);
@@ -92,8 +90,6 @@ public class GameController : MonoBehaviour {
 
 		if (wide)
 		{
-			normalCollisionMesh.SetActive(false);
-			wideCollisionMesh.SetActive(true);
 			controlsDiagramLeft.SetActive(false);
 			controlsDiagramRight.SetActive(false);
 			controlsDiagramLeftWide.SetActive(true);
@@ -101,8 +97,6 @@ public class GameController : MonoBehaviour {
 		}
 		else
 		{
-			normalCollisionMesh.SetActive(true);
-			wideCollisionMesh.SetActive(false);
 			controlsDiagramLeft.SetActive(true);
 			controlsDiagramRight.SetActive(true);
 			controlsDiagramLeftWide.SetActive(false);
