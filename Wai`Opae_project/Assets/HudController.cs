@@ -95,7 +95,7 @@ public class HudController : MonoBehaviour
 			healthBar.value = GameModel.Model.RoiPopulationSize;
 
 		countdownTimerStrobe.strobeEnabled = 
-			!GameModel.Model.GameSuspended && !GameModel.Model.AnimationSuspended && GameModel.Model.RemainingTime < 11.0f;
+			!GameModel.Model.GameSuspended && !GameModel.Model.AnimationSuspended && GameModel.Model.RemainingTime < 10.0f;
 		countdownTimerOutlineStrobe.strobeEnabled = countdownTimerStrobe.strobeEnabled;
 		
 		// Update fish death text.

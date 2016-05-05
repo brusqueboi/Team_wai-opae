@@ -29,7 +29,7 @@ public class AudioController {
 	// Update is called once per frame
 	public void Update () {
 	    if(!GameModel.Model.GameSuspended && !GameModel.Model.AnimationSuspended 
-            && GameModel.Model.RemainingTime < 11.0f && Time.time - lastTimerAlarmTime > 1.0f)
+            && GameModel.Model.RemainingTime < 10.0f && Time.time - lastTimerAlarmTime > 1.0f)
         {
             AudioSource cameraAudioSrc = Camera.main.GetComponent<AudioSource>();
             cameraAudioSrc.PlayOneShot(timerTick, 0.1f);
