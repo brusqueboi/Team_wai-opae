@@ -45,7 +45,27 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\XboxCtrlAdapter.cs" />
+     <Compile Include="Assets\AbstractFishController.cs" />
+     <Compile Include="Assets\Caustic Effct &amp; Underwater Fog\Shaders\CausticsProjector.cs" />
+     <Compile Include="Assets\Caustic Effct &amp; Underwater Fog\Shaders\StandardCausticsShaderGUI.cs" />
+     <Compile Include="Assets\Caustic Effct &amp; Underwater Fog\UnderwaterFog.cs" />
+     <Compile Include="Assets\CursorMovement.cs" />
+     <Compile Include="Assets\EatFish.cs" />
+     <Compile Include="Assets\FishAnimationController.cs" />
+     <Compile Include="Assets\FishName.cs" />
+     <Compile Include="Assets\GameController.cs" />
+     <Compile Include="Assets\GameModel.cs" />
+     <Compile Include="Assets\LauncherController.cs" />
+     <Compile Include="Assets\ObjectRespawnTrigger.cs" />
+     <Compile Include="Assets\PreyController.cs" />
+     <Compile Include="Assets\ProjectileController.cs" />
+     <Compile Include="Assets\RoiController.cs" />
+     <Compile Include="Assets\SpawnController.cs" />
+     <Compile Include="Assets\UI.cs" />
+     <Compile Include="Assets\Utils.cs" />
+     <None Include="Assets\Caustic Effct &amp; Underwater Fog\Shaders\UnityStandardCausticsCore.cginc" />
+     <None Include="Assets\Caustic Effct &amp; Underwater Fog\Shaders\StandardCaustics.shader" />
+     <None Include="Assets\Caustic Effct &amp; Underwater Fog\Shaders\UnityStandardCausticsInput.cginc" />
  <Reference Include="UnityEngine.UI">
  <HintPath>C:/Program Files/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>
